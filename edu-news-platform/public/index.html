@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+  <title>New Century EduNews · 0–16岁教育资讯</title>
+  <link rel="stylesheet" href="style.css"/>
+  <link rel="stylesheet" href="/theme.css" id="theme-css"/>
+</head>
+<body>
+
+<!-- 滚动进度条 -->
+<div id="progress"></div>
+
+<!-- ══ NAV ════════════════════════════════════════════════════════════ -->
+<header class="nav" id="nav">
+  <div class="nav-inner">
+    <a class="brand" href="#top">
+      <span class="brand-dot"></span>
+      EduNews
+    </a>
+    <nav class="nav-links">
+      <a class="nav-link" data-cat="english_learning">英语学习</a>
+      <a class="nav-link" data-cat="youth_achievement">少年成就</a>
+      <a class="nav-link" data-cat="academic_family">学术&家庭</a>
+      <a class="nav-link" data-cat="hot">热榜</a>
+    </nav>
+    <div class="nav-actions">
+      <button id="btn-translate" class="nav-btn" title="一键翻译">译</button>
+      <button id="btn-refresh" class="nav-btn" title="刷新">↻</button>
+      <button id="btn-chat" class="nav-btn nav-btn-accent" title="AI 对话">AI 对话</button>
+      <a href="admin.html" class="nav-btn nav-btn-ghost" title="管理后台">管理</a>
+    </div>
+  </div>
+</header>
+
+<!-- ══ HERO ═══════════════════════════════════════════════════════════ -->
+<section class="hero" id="top">
+  <div class="hero-inner">
+    <p class="hero-kicker reveal">0–16 岁 · 每日全球教育资讯</p>
+    <h1 class="hero-title">
+      <span class="line"><span>看见孩子</span></span>
+      <span class="line"><span>成长的世界</span></span>
+    </h1>
+    <p class="hero-sub reveal">英语学习 · 少年成就 · 学术与家庭 —— 全球教育动态，一站式中文呈现。</p>
+    <div class="hero-cta reveal">
+      <button class="btn-primary" id="hero-enter">进入今日资讯</button>
+      <span class="hero-meta" id="hero-count">加载中…</span>
+    </div>
+  </div>
+  <div class="hero-scroll">向下滚动<span class="hero-scroll-line"></span></div>
+</section>
+
+<!-- ══ MAIN ═══════════════════════════════════════════════════════════ -->
+<main class="main" id="main">
+  <div class="content" id="content">
+
+    <div class="section-head reveal">
+      <div class="section-head-text">
+        <h2 class="section-title" id="section-title">英语学习</h2>
+        <p class="section-sub" id="last-update"></p>
+      </div>
+      <div class="search">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+        <input id="search-input" type="text" placeholder="搜索标题…" autocomplete="off"/>
+      </div>
+    </div>
+
+    <!-- 分类筛选 -->
+    <div class="filter-row reveal">
+      <button class="pill active cat-english_learning" data-cat="english_learning">英语学习<span class="pill-count" id="cnt-english">—</span></button>
+      <button class="pill cat-youth_achievement" data-cat="youth_achievement">少年成就<span class="pill-count" id="cnt-youth">—</span></button>
+      <button class="pill cat-academic_family" data-cat="academic_family">学术&家庭<span class="pill-count" id="cnt-academic">—</span></button>
+      <button class="pill pill-hot" data-cat="hot">🔥 热榜</button>
+    </div>
+
+    <!-- 热榜时段切换 -->
+    <div id="period-tabs-bar" class="period-tabs" style="display:none">
+      <button class="period-btn active" data-period="today">今天</button>
+      <button class="period-btn" data-period="week">本周</button>
+      <button class="period-btn" data-period="month">本月</button>
+    </div>
+
+    <!-- 新闻列表 -->
+    <div class="news-grid" id="news-grid"></div>
+  </div>
+
+  <footer class="footer reveal">
+    <div class="footer-brand"><span class="brand-dot"></span> New Century EduNews</div>
+    <p>0–16 岁教育资讯平台 · 数据每 15 分钟自动更新 · 由 DeepSeek 提供翻译与摘要</p>
+  </footer>
+</main>
+
+<!-- ══ SLIDE-IN PANEL (热榜 / AI) ════════════════════════════════════ -->
+<div class="panel-backdrop" id="panel-backdrop"></div>
+<aside class="side-panel" id="right-panel">
+  <div class="side-panel-head">
+    <div class="right-tabs">
+      <button class="right-tab active" data-rtab="hot">热榜</button>
+      <button class="right-tab" data-rtab="chat">AI 对话</button>
+    </div>
+    <button class="side-panel-close" id="panel-close">×</button>
+  </div>
+
+  <!-- 热榜 -->
+  <div class="right-pane active" id="rpane-hot">
+    <div class="hot-controls">
+      <button class="hot-period-btn active" data-period="today">今天</button>
+      <button class="hot-period-btn" data-period="week">本周</button>
+      <button class="hot-period-btn" data-period="month">本月</button>
+    </div>
+    <div class="hot-list" id="hot-list"></div>
+  </div>
+
+  <!-- AI 对话 -->
+  <div class="right-pane" id="rpane-chat">
+    <div class="chat-messages" id="chat-messages">
+      <div class="chat-bubble assistant">你好！我是 EduNews AI 助手，专注 0–16 岁教育。英语学习、少年成就、家庭教育，都可以问我。</div>
+    </div>
+    <div id="chat-no-key" class="chat-no-key" style="display:none">
+      ⚠️ 未配置 DeepSeek API Key，请前往 <a href="admin.html">管理后台</a> → 系统设置 添加。
+    </div>
+    <div class="chat-input-area">
+      <textarea class="chat-input" id="chat-input" rows="1" placeholder="问我任何教育问题…"></textarea>
+      <button class="chat-send" id="chat-send">
+        <svg viewBox="0 0 24 24" fill="currentColor"><path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"/></svg>
+      </button>
+    </div>
+  </div>
+</aside>
+
+<!-- ══ READER MODAL ══════════════════════════════════════════════════ -->
+<div class="modal-overlay hidden" id="reader-overlay">
+  <div class="reader-modal">
+    <div class="reader-header">
+      <div class="reader-header-text">
+        <div class="reader-title" id="reader-title"></div>
+        <div class="reader-meta" id="reader-meta"></div>
+      </div>
+      <button class="reader-close" id="reader-close">×</button>
+    </div>
+    <div class="reader-body" id="reader-body"></div>
+    <div class="reader-footer">
+      <a id="reader-orig" class="reader-orig-link" href="#" target="_blank" rel="noopener">访问原文 ↗</a>
+      <span style="flex:1"></span>
+      <span class="reader-foot-note">由 EduNews 提取正文</span>
+    </div>
+  </div>
+</div>
+
+<script src="app.js"></script>
+</body>
+</html>

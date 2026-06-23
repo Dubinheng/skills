@@ -1,0 +1,591 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>简历 · Your Name</title>
+  <style>
+    :root {
+      --bg: #0d0d0d;
+      --surface: #161616;
+      --border: #242424;
+      --muted: #555;
+      --text: #e8e8e8;
+      --sub: #999;
+      --accent: #f0f0f0;
+      --tag-bg: #1e1e1e;
+      --timeline: #2a2a2a;
+      --dot: #555;
+      --dot-active: #e8e8e8;
+      --font-mono: 'JetBrains Mono', 'Fira Code', 'Cascadia Code', monospace;
+      --font-sans: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: var(--font-sans);
+      font-size: 15px;
+      line-height: 1.7;
+      min-height: 100vh;
+    }
+
+    /* ── Layout ── */
+    .container {
+      max-width: 780px;
+      margin: 0 auto;
+      padding: 0 24px 120px;
+    }
+
+    /* ── Header ── */
+    header {
+      padding: 80px 0 60px;
+      border-bottom: 1px solid var(--border);
+      margin-bottom: 64px;
+    }
+
+    .badge {
+      display: inline-block;
+      font-family: var(--font-mono);
+      font-size: 11px;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--muted);
+      margin-bottom: 24px;
+    }
+
+    .name {
+      font-size: clamp(32px, 6vw, 52px);
+      font-weight: 700;
+      letter-spacing: -0.03em;
+      line-height: 1.1;
+      color: var(--accent);
+      margin-bottom: 12px;
+    }
+
+    .title {
+      font-family: var(--font-mono);
+      font-size: 14px;
+      color: var(--sub);
+      margin-bottom: 28px;
+      min-height: 20px;
+    }
+
+    .cursor {
+      display: inline-block;
+      width: 2px;
+      height: 1em;
+      background: var(--sub);
+      margin-left: 2px;
+      vertical-align: middle;
+      animation: blink 1s step-end infinite;
+    }
+
+    @keyframes blink { 50% { opacity: 0; } }
+
+    .contacts {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 16px;
+      margin-top: 32px;
+    }
+
+    .contact-item {
+      font-family: var(--font-mono);
+      font-size: 12px;
+      color: var(--sub);
+      text-decoration: none;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      transition: color 0.2s;
+    }
+
+    .contact-item:hover { color: var(--accent); }
+
+    .contact-item svg {
+      width: 14px;
+      height: 14px;
+      flex-shrink: 0;
+      opacity: 0.6;
+    }
+
+    /* ── Section ── */
+    section {
+      margin-bottom: 72px;
+      opacity: 0;
+      transform: translateY(24px);
+      transition: opacity 0.5s ease, transform 0.5s ease;
+    }
+
+    section.visible {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    .section-label {
+      font-family: var(--font-mono);
+      font-size: 11px;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: var(--muted);
+      margin-bottom: 32px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .section-label::after {
+      content: '';
+      flex: 1;
+      height: 1px;
+      background: var(--border);
+    }
+
+    /* ── About ── */
+    .about-text {
+      font-size: 16px;
+      line-height: 1.8;
+      color: var(--sub);
+      max-width: 620px;
+    }
+
+    .about-text strong { color: var(--text); }
+
+    /* ── Timeline ── */
+    .timeline {
+      position: relative;
+      padding-left: 28px;
+    }
+
+    .timeline::before {
+      content: '';
+      position: absolute;
+      left: 0;
+      top: 6px;
+      bottom: 0;
+      width: 1px;
+      background: var(--timeline);
+    }
+
+    .timeline-item {
+      position: relative;
+      padding-bottom: 48px;
+      opacity: 0;
+      transform: translateX(-8px);
+      transition: opacity 0.4s ease, transform 0.4s ease;
+    }
+
+    .timeline-item.visible {
+      opacity: 1;
+      transform: translateX(0);
+    }
+
+    .timeline-item::before {
+      content: '';
+      position: absolute;
+      left: -32px;
+      top: 6px;
+      width: 9px;
+      height: 9px;
+      border-radius: 50%;
+      background: var(--dot);
+      border: 1px solid var(--border);
+      transition: background 0.3s, box-shadow 0.3s;
+    }
+
+    .timeline-item:hover::before {
+      background: var(--dot-active);
+      box-shadow: 0 0 0 3px rgba(232,232,232,0.08);
+    }
+
+    .timeline-meta {
+      font-family: var(--font-mono);
+      font-size: 11px;
+      color: var(--muted);
+      letter-spacing: 0.06em;
+      margin-bottom: 8px;
+    }
+
+    .timeline-role {
+      font-size: 16px;
+      font-weight: 600;
+      color: var(--accent);
+      margin-bottom: 4px;
+      letter-spacing: -0.01em;
+    }
+
+    .timeline-company {
+      font-size: 13px;
+      color: var(--sub);
+      margin-bottom: 12px;
+    }
+
+    .timeline-desc {
+      font-size: 14px;
+      color: #777;
+      line-height: 1.75;
+      max-width: 580px;
+    }
+
+    .timeline-tags {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      margin-top: 12px;
+    }
+
+    .tag {
+      font-family: var(--font-mono);
+      font-size: 11px;
+      color: var(--muted);
+      background: var(--tag-bg);
+      border: 1px solid var(--border);
+      border-radius: 3px;
+      padding: 2px 8px;
+    }
+
+    /* ── Skills ── */
+    .skills-grid {
+      display: grid;
+      gap: 24px;
+    }
+
+    .skill-group-label {
+      font-family: var(--font-mono);
+      font-size: 11px;
+      color: var(--muted);
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      margin-bottom: 10px;
+    }
+
+    .skill-tags {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    .skill-tag {
+      font-family: var(--font-mono);
+      font-size: 12px;
+      color: var(--sub);
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      padding: 4px 10px;
+      transition: border-color 0.2s, color 0.2s;
+      cursor: default;
+    }
+
+    .skill-tag:hover {
+      border-color: var(--muted);
+      color: var(--text);
+    }
+
+    /* ── Projects ── */
+    .projects-grid {
+      display: grid;
+      gap: 16px;
+    }
+
+    .project-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      padding: 20px 24px;
+      transition: border-color 0.2s, transform 0.2s;
+      cursor: default;
+    }
+
+    .project-card:hover {
+      border-color: var(--muted);
+      transform: translateY(-2px);
+    }
+
+    .project-name {
+      font-size: 15px;
+      font-weight: 600;
+      color: var(--accent);
+      margin-bottom: 6px;
+      letter-spacing: -0.01em;
+    }
+
+    .project-desc {
+      font-size: 13px;
+      color: #666;
+      line-height: 1.7;
+      margin-bottom: 12px;
+    }
+
+    /* ── Footer ── */
+    footer {
+      border-top: 1px solid var(--border);
+      padding-top: 32px;
+      margin-top: 80px;
+      font-family: var(--font-mono);
+      font-size: 11px;
+      color: var(--muted);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+  </style>
+</head>
+<body>
+<div class="container">
+
+  <!-- ── Header ── -->
+  <header>
+    <div class="badge">resume · 简历</div>
+    <h1 class="name">张三</h1>
+    <p class="title" id="typed-title"></p>
+
+    <div class="contacts">
+      <a class="contact-item" href="mailto:hello@example.com">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+          <rect x="2" y="4" width="20" height="16" rx="2"/><path d="m2 7 10 7 10-7"/>
+        </svg>
+        hello@example.com
+      </a>
+      <a class="contact-item" href="https://github.com/yourname" target="_blank">
+        <svg viewBox="0 0 24 24" fill="currentColor">
+          <path d="M12 2C6.477 2 2 6.484 2 12.017c0 4.425 2.865 8.18 6.839 9.504.5.092.682-.217.682-.483 0-.237-.008-.868-.013-1.703-2.782.605-3.369-1.343-3.369-1.343-.454-1.158-1.11-1.466-1.11-1.466-.908-.62.069-.608.069-.608 1.003.07 1.531 1.032 1.531 1.032.892 1.53 2.341 1.088 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.113-4.555-4.951 0-1.093.39-1.988 1.029-2.688-.103-.253-.446-1.272.098-2.65 0 0 .84-.27 2.75 1.026A9.564 9.564 0 0 1 12 6.844a9.59 9.59 0 0 1 2.504.337c1.909-1.296 2.747-1.027 2.747-1.027.546 1.379.202 2.398.1 2.651.64.7 1.028 1.595 1.028 2.688 0 3.848-2.339 4.695-4.566 4.942.359.31.678.921.678 1.856 0 1.338-.012 2.419-.012 2.747 0 .268.18.58.688.482A10.02 10.02 0 0 0 22 12.017C22 6.484 17.522 2 12 2z"/>
+        </svg>
+        github/yourname
+      </a>
+      <span class="contact-item">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+          <path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7z"/><circle cx="12" cy="9" r="2.5"/>
+        </svg>
+        上海 · 中国
+      </span>
+    </div>
+  </header>
+
+  <!-- ── About ── -->
+  <section id="about">
+    <div class="section-label">关于我</div>
+    <p class="about-text">
+      <strong>全栈工程师</strong>，专注于构建高质量的 Web 应用和开发者工具。
+      热衷于系统设计与工程效率，相信<strong>简单、可组合</strong>的代码胜过复杂的抽象。
+      日常使用 TypeScript / Go / Python，对 AI 工具链有浓厚兴趣。
+    </p>
+  </section>
+
+  <!-- ── Experience ── -->
+  <section id="experience">
+    <div class="section-label">工作经历</div>
+    <div class="timeline">
+
+      <div class="timeline-item">
+        <div class="timeline-meta">2023.06 — 至今</div>
+        <div class="timeline-role">高级前端工程师</div>
+        <div class="timeline-company">某科技有限公司 · 上海</div>
+        <p class="timeline-desc">
+          负责公司核心 SaaS 产品的前端架构设计与迭代，将页面首屏加载时间从 4.2s 优化至 1.1s。
+          主导设计系统从零搭建，统一 20+ 业务组件，提升团队交付效率约 40%。
+        </p>
+        <div class="timeline-tags">
+          <span class="tag">React</span>
+          <span class="tag">TypeScript</span>
+          <span class="tag">Vite</span>
+          <span class="tag">设计系统</span>
+        </div>
+      </div>
+
+      <div class="timeline-item">
+        <div class="timeline-meta">2021.07 — 2023.05</div>
+        <div class="timeline-role">前端开发工程师</div>
+        <div class="timeline-company">某互联网公司 · 北京</div>
+        <p class="timeline-desc">
+          参与 B 端管理后台的从 0 到 1 建设，独立完成数据可视化模块开发，
+          日均 PV 超过 50 万。配合后端完成 GraphQL 接口迁移，减少 30% 冗余请求。
+        </p>
+        <div class="timeline-tags">
+          <span class="tag">Vue 3</span>
+          <span class="tag">GraphQL</span>
+          <span class="tag">ECharts</span>
+          <span class="tag">Node.js</span>
+        </div>
+      </div>
+
+      <div class="timeline-item">
+        <div class="timeline-meta">2020.06 — 2021.06</div>
+        <div class="timeline-role">实习前端工程师</div>
+        <div class="timeline-company">某创业公司 · 深圳</div>
+        <p class="timeline-desc">
+          参与移动端 H5 活动页开发，协助搭建 CI/CD 流程，
+          熟悉工程化体系建设的基础实践。
+        </p>
+        <div class="timeline-tags">
+          <span class="tag">HTML/CSS</span>
+          <span class="tag">Webpack</span>
+          <span class="tag">Jenkins</span>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- ── Education ── -->
+  <section id="education">
+    <div class="section-label">教育经历</div>
+    <div class="timeline">
+
+      <div class="timeline-item">
+        <div class="timeline-meta">2016.09 — 2020.06</div>
+        <div class="timeline-role">计算机科学与技术 · 本科</div>
+        <div class="timeline-company">某某大学 · 北京</div>
+        <p class="timeline-desc">
+          GPA 3.8/4.0，校级优秀毕业生。毕业论文《基于 WebAssembly 的浏览器端图像处理优化》获优秀评定。
+        </p>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- ── Skills ── -->
+  <section id="skills">
+    <div class="section-label">技术栈</div>
+    <div class="skills-grid">
+
+      <div>
+        <div class="skill-group-label">语言</div>
+        <div class="skill-tags">
+          <span class="skill-tag">TypeScript</span>
+          <span class="skill-tag">JavaScript</span>
+          <span class="skill-tag">Go</span>
+          <span class="skill-tag">Python</span>
+          <span class="skill-tag">Rust</span>
+        </div>
+      </div>
+
+      <div>
+        <div class="skill-group-label">框架 &amp; 工具</div>
+        <div class="skill-tags">
+          <span class="skill-tag">React</span>
+          <span class="skill-tag">Next.js</span>
+          <span class="skill-tag">Vue 3</span>
+          <span class="skill-tag">Node.js</span>
+          <span class="skill-tag">Vite</span>
+          <span class="skill-tag">Tailwind CSS</span>
+          <span class="skill-tag">Prisma</span>
+        </div>
+      </div>
+
+      <div>
+        <div class="skill-group-label">基础设施</div>
+        <div class="skill-tags">
+          <span class="skill-tag">PostgreSQL</span>
+          <span class="skill-tag">Redis</span>
+          <span class="skill-tag">Docker</span>
+          <span class="skill-tag">AWS</span>
+          <span class="skill-tag">GitHub Actions</span>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- ── Projects ── -->
+  <section id="projects">
+    <div class="section-label">项目</div>
+    <div class="projects-grid">
+
+      <div class="project-card">
+        <div class="project-name">devkit-cli</div>
+        <p class="project-desc">面向工程团队的命令行效率工具，集成代码生成、依赖检查与部署流程。GitHub 500+ stars。</p>
+        <div class="timeline-tags">
+          <span class="tag">Go</span>
+          <span class="tag">CLI</span>
+          <span class="tag">开源</span>
+        </div>
+      </div>
+
+      <div class="project-card">
+        <div class="project-name">react-query-builder</div>
+        <p class="project-desc">可视化 SQL 查询构建器组件，支持嵌套条件与自定义操作符，零依赖，4KB gzip。</p>
+        <div class="timeline-tags">
+          <span class="tag">React</span>
+          <span class="tag">TypeScript</span>
+          <span class="tag">NPM</span>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+  <footer>
+    <span>张三 · 简历</span>
+    <span>最后更新：2026.05</span>
+  </footer>
+
+</div>
+
+<script>
+  // ── Typing effect ──
+  const roles = [
+    '全栈工程师',
+    'Frontend Engineer',
+    '开发者工具爱好者',
+    'TypeScript / Go / Python',
+  ];
+  let roleIdx = 0, charIdx = 0, deleting = false;
+  const el = document.getElementById('typed-title');
+
+  function type() {
+    const current = roles[roleIdx];
+    if (!deleting) {
+      el.innerHTML = current.slice(0, charIdx + 1) + '<span class="cursor"></span>';
+      charIdx++;
+      if (charIdx === current.length) {
+        deleting = true;
+        setTimeout(type, 1800);
+        return;
+      }
+    } else {
+      el.innerHTML = current.slice(0, charIdx - 1) + '<span class="cursor"></span>';
+      charIdx--;
+      if (charIdx === 0) {
+        deleting = false;
+        roleIdx = (roleIdx + 1) % roles.length;
+      }
+    }
+    setTimeout(type, deleting ? 40 : 80);
+  }
+
+  type();
+
+  // ── Scroll reveal ──
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) entry.target.classList.add('visible');
+    });
+  }, { threshold: 0.1 });
+
+  document.querySelectorAll('section').forEach(el => observer.observe(el));
+
+  // ── Timeline stagger ──
+  const timelineObserver = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        const items = entry.target.querySelectorAll('.timeline-item');
+        items.forEach((item, i) => {
+          setTimeout(() => item.classList.add('visible'), i * 120);
+        });
+        timelineObserver.unobserve(entry.target);
+      }
+    });
+  }, { threshold: 0.05 });
+
+  document.querySelectorAll('.timeline').forEach(el => timelineObserver.observe(el));
+</script>
+</body>
+</html>

@@ -1,0 +1,1039 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+  <title>简历管理后台</title>
+  <style>
+    :root{
+      --bg:#F5F3EF; --surface:#FFFFFF; --surface2:#FBFAF7;
+      --border:#E8E2D8; --border2:#EFE8DE;
+      --primary:#A35436; --primary-h:#8E3F2B;
+      --text:#2B2B2B; --sub:#7A756E; --muted:#A09A91;
+      --sidebar:220px; --map-width:200px;
+      --font:Inter,"PingFang SC","Microsoft YaHei",system-ui,sans-serif;
+      --r:12px; --r-sm:8px; --r-tag:999px;
+    }
+    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+    body{background:var(--bg);color:var(--text);font-family:var(--font);font-size:14px;display:flex;flex-direction:column;min-height:100vh}
+
+    /* ── Login overlay ── */
+    #login-overlay{
+      position:fixed;inset:0;z-index:999;
+      background:linear-gradient(135deg,#1a0f0a 0%,#2d1a10 50%,#1a0f0a 100%);
+      display:flex;align-items:center;justify-content:center;
+    }
+    #login-overlay.hidden{display:none}
+    .login-card{
+      background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.12);
+      border-radius:20px;padding:44px 40px 36px;width:360px;
+      backdrop-filter:blur(20px);
+      box-shadow:0 24px 64px rgba(0,0,0,.5);
+      text-align:center;
+    }
+    .login-logo{
+      width:56px;height:56px;background:var(--primary);border-radius:16px;
+      display:flex;align-items:center;justify-content:center;font-size:24px;
+      margin:0 auto 20px;box-shadow:0 8px 24px rgba(163,84,54,.4);
+    }
+    .login-title{font-size:20px;font-weight:700;color:#fff;margin-bottom:4px}
+    .login-sub{font-size:12px;color:rgba(255,255,255,.4);margin-bottom:28px}
+    .login-field{margin-bottom:14px;text-align:left}
+    .login-field label{display:block;font-size:11px;color:rgba(255,255,255,.5);margin-bottom:6px;letter-spacing:.05em}
+    .login-field input{
+      width:100%;padding:10px 14px;border-radius:10px;
+      background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.15);
+      color:#fff;font-size:14px;outline:none;transition:border .2s;
+    }
+    .login-field input:focus{border-color:var(--primary);}
+    .login-field input::placeholder{color:rgba(255,255,255,.25)}
+    .login-btn{
+      width:100%;margin-top:10px;padding:12px;border:none;border-radius:10px;
+      background:var(--primary);color:#fff;font-size:14px;font-weight:600;
+      cursor:pointer;transition:background .2s,transform .1s;
+    }
+    .login-btn:hover{background:var(--primary-h)}
+    .login-btn:active{transform:scale(.98)}
+    .login-err{
+      font-size:12px;color:#ff7b6b;margin-top:10px;
+      min-height:18px;text-align:center;
+    }
+
+    /* ── Topbar ── */
+    .topbar{
+      position:fixed;top:0;left:0;right:0;height:52px;
+      background:var(--surface);border-bottom:1px solid var(--border);
+      display:flex;align-items:center;padding:0 16px 0 calc(var(--sidebar) + 16px);
+      gap:10px;z-index:50;
+    }
+    .topbar-brand{font-size:13px;font-weight:700;color:var(--text);margin-right:4px}
+    .topbar-breadcrumb{font-size:12px;color:var(--muted);flex:1;display:flex;align-items:center;gap:4px}
+    .topbar-breadcrumb span{color:var(--primary);font-weight:500}
+    .topbar-breadcrumb svg{width:12px;height:12px;opacity:.4}
+
+    .btn{display:inline-flex;align-items:center;gap:6px;border:none;border-radius:var(--r-tag);padding:7px 16px;font-size:12px;font-weight:500;cursor:pointer;transition:background .15s,transform .1s;text-decoration:none}
+    .btn:active{transform:scale(.97)}
+    .btn-primary{background:var(--primary);color:#fff}
+    .btn-primary:hover{background:var(--primary-h)}
+    .btn-ghost{background:var(--bg);color:var(--sub);border:1px solid var(--border)}
+    .btn-ghost:hover{border-color:var(--primary);color:var(--primary)}
+    .btn-danger{background:#FDE8E8;color:#C0392B;border:1px solid #F5C0C0}
+    .btn-danger:hover{background:#F5C0C0}
+    .btn-sm{padding:5px 12px;font-size:12px}
+    .btn svg{width:13px;height:13px;flex-shrink:0}
+
+    /* ── Sidebar ── */
+    .sidebar{
+      position:fixed;top:52px;left:0;bottom:0;width:var(--sidebar);
+      background:var(--surface);border-right:1px solid var(--border);
+      padding:12px 10px;overflow-y:auto;z-index:40;
+      display:flex;flex-direction:column;gap:2px;
+    }
+    .nav-label{font-size:10px;font-weight:600;color:var(--muted);letter-spacing:.1em;text-transform:uppercase;padding:10px 8px 4px}
+    .nav-item{
+      display:flex;align-items:center;gap:9px;
+      padding:9px 10px;border-radius:var(--r-sm);
+      cursor:pointer;color:var(--sub);font-size:13px;
+      transition:background .12s,color .12s;
+    }
+    .nav-item:hover{background:var(--bg);color:var(--text)}
+    .nav-item.active{background:#FDF0EA;color:var(--primary);font-weight:500}
+    .nav-item svg{width:15px;height:15px;flex-shrink:0}
+    .nav-dot{width:7px;height:7px;border-radius:50%;flex-shrink:0;background:var(--border)}
+    .nav-item.active .nav-dot{background:var(--primary)}
+
+    /* ── Main ── */
+    .main{
+      margin-top:52px;
+      margin-left:var(--sidebar);
+      margin-right:var(--map-width);
+      padding:24px 28px;
+      flex:1;min-width:0;
+    }
+
+    /* ── Map sidebar ── */
+    .map-sidebar{
+      position:fixed;top:52px;right:0;bottom:0;
+      width:var(--map-width);
+      background:var(--surface);
+      border-left:1px solid var(--border);
+      padding:16px 14px;overflow-y:auto;
+      z-index:40;
+    }
+    .map-title{font-size:10px;font-weight:600;color:var(--muted);letter-spacing:.1em;text-transform:uppercase;margin-bottom:12px}
+    .resume-map{display:flex;flex-direction:column;gap:5px}
+    .map-block{
+      border-radius:8px;padding:8px 10px;
+      border:1.5px solid var(--border2);
+      background:var(--surface2);
+      cursor:pointer;
+      transition:border-color .15s,background .15s;
+      font-size:11px;color:var(--sub);
+    }
+    .map-block:hover{border-color:var(--primary);color:var(--text)}
+    .map-block.active{
+      border-color:var(--primary);
+      background:#FDF0EA;
+      color:var(--primary);
+      font-weight:500;
+    }
+    .map-block-name{font-weight:600;margin-bottom:2px;font-size:11px}
+    .map-block-hint{font-size:10px;color:var(--muted);line-height:1.4}
+    .map-block.active .map-block-hint{color:rgba(163,84,54,.6)}
+    .map-arrow{text-align:center;color:var(--border);font-size:10px;margin:1px 0}
+
+    /* ── Panel ── */
+    .panel{display:none}
+    .panel.active{display:block}
+
+    .panel-hero{
+      background:linear-gradient(135deg,#FDF0EA,#FBF6F0);
+      border:1px solid #F2D5C4;border-radius:var(--r);
+      padding:16px 20px;margin-bottom:20px;
+      display:flex;align-items:flex-start;gap:14px;
+    }
+    .panel-hero-icon{
+      width:38px;height:38px;border-radius:10px;
+      background:var(--primary);
+      display:flex;align-items:center;justify-content:center;
+      flex-shrink:0;
+    }
+    .panel-hero-icon svg{width:18px;height:18px;color:#fff}
+    .panel-hero-text h2{font-size:15px;font-weight:700;color:var(--text);margin-bottom:3px}
+    .panel-hero-text p{font-size:12px;color:var(--sub);line-height:1.6}
+    .panel-hero-text .resume-pos{
+      display:inline-flex;align-items:center;gap:5px;
+      font-size:11px;color:var(--primary);
+      background:rgba(163,84,54,.08);
+      border:1px solid rgba(163,84,54,.15);
+      border-radius:var(--r-tag);padding:2px 10px;
+      margin-top:6px;
+    }
+    .panel-hero-text .resume-pos svg{width:11px;height:11px}
+
+    /* ── Cards ── */
+    .card{background:var(--surface);border:1px solid var(--border);border-radius:var(--r);padding:20px 22px;margin-bottom:14px}
+    .card-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;padding-bottom:10px;border-bottom:1px solid var(--border2)}
+    .card-title{font-size:13px;font-weight:600;color:var(--text)}
+    .card-sub{font-size:11px;color:var(--muted);margin-top:2px}
+
+    /* ── Form ── */
+    .form-row{margin-bottom:14px}
+    .form-label{display:flex;align-items:baseline;gap:6px;margin-bottom:6px}
+    .form-label label{font-size:12px;font-weight:500;color:var(--sub)}
+    .field-pos{font-size:10px;color:var(--muted);background:var(--bg);border:1px solid var(--border2);border-radius:var(--r-tag);padding:1px 8px}
+    .form-row input,.form-row textarea,.form-row select{
+      width:100%;background:var(--bg);border:1px solid var(--border);
+      border-radius:var(--r-sm);padding:8px 11px;
+      font-family:var(--font);font-size:13px;color:var(--text);
+      outline:none;transition:border-color .15s;resize:vertical;
+    }
+    .form-row input:focus,.form-row textarea:focus{border-color:var(--primary)}
+    .form-row textarea{min-height:80px}
+    .form-hint{font-size:11px;color:var(--muted);margin-top:5px;line-height:1.5}
+    .form-hint strong{color:var(--sub)}
+    .form-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+
+    /* ── List items ── */
+    .exp-card,.proj-card,.port-card-admin{
+      background:var(--surface2);border:1px solid var(--border2);
+      border-radius:var(--r);overflow:hidden;margin-bottom:10px;
+    }
+    .item-head{
+      display:flex;align-items:center;gap:10px;
+      padding:12px 16px;cursor:pointer;
+      transition:background .12s;
+    }
+    .item-head:hover{background:var(--bg)}
+    .item-head-info{flex:1;min-width:0}
+    .item-head-title{font-size:13px;font-weight:600;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+    .item-head-meta{font-size:11px;color:var(--muted);margin-top:1px}
+    .chevron{width:15px;height:15px;color:var(--muted);flex-shrink:0;transition:transform .2s}
+    .item-open .chevron{transform:rotate(180deg)}
+    .item-body{display:none;padding:0 16px 16px;border-top:1px solid var(--border2)}
+    .item-open .item-body{display:block}
+    .item-body-inner{padding-top:14px}
+
+    /* ── Bullet editor ── */
+    .bullet-list{display:flex;flex-direction:column;gap:7px;margin-bottom:7px}
+    .bullet-row{display:flex;gap:7px;align-items:flex-start}
+    .bullet-row textarea{flex:1;min-height:52px;font-size:12px}
+    .icon-btn{background:none;border:none;cursor:pointer;color:var(--muted);padding:4px;border-radius:6px;transition:color .15s,background .15s;flex-shrink:0;margin-top:2px}
+    .icon-btn:hover{color:#C0392B;background:#FDE8E8}
+    .icon-btn svg{width:13px;height:13px}
+
+    /* ── Tag editor ── */
+    .tag-editor{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:7px;min-height:28px}
+    .tag-chip{display:inline-flex;align-items:center;gap:4px;font-size:11px;color:var(--sub);background:var(--bg);border:1px solid var(--border2);border-radius:var(--r-tag);padding:3px 8px 3px 10px}
+    .tag-chip button{background:none;border:none;cursor:pointer;color:var(--muted);padding:0;line-height:1;font-size:13px;transition:color .12s}
+    .tag-chip button:hover{color:#C0392B}
+    .tag-add-row{display:flex;gap:7px}
+    .tag-add-row input{flex:1;padding:6px 10px;font-size:12px}
+    .tag-color-select{padding:6px 8px;font-size:12px;width:90px}
+
+    /* ── Stat editor ── */
+    .stat-list{display:flex;flex-direction:column;gap:7px;margin-bottom:7px}
+    .stat-row{display:flex;gap:7px;align-items:center}
+    .stat-row input{flex:1;padding:7px 10px;font-size:12px}
+    .stat-val-input{width:90px!important;flex:none!important;font-weight:700;font-size:14px!important;text-align:center}
+
+    /* ── Skills ── */
+    .skill-group-card{background:var(--surface2);border:1px solid var(--border2);border-radius:var(--r-sm);padding:14px 16px;margin-bottom:10px}
+    .skill-group-head{display:flex;align-items:center;gap:8px;margin-bottom:10px}
+    .skill-group-head input{flex:1;font-size:12px;padding:5px 8px;font-weight:600}
+
+    /* ── Toast ── */
+    .toast{position:fixed;bottom:24px;right:calc(var(--map-width) + 16px);background:var(--text);color:#fff;border-radius:var(--r-sm);padding:9px 16px;font-size:13px;font-weight:500;opacity:0;transform:translateY(6px);transition:opacity .22s,transform .22s;pointer-events:none;z-index:200}
+    .toast.show{opacity:1;transform:translateY(0)}
+
+    .divider{height:1px;background:var(--border2);margin:16px 0}
+    .empty-hint{text-align:center;padding:28px;color:var(--muted);font-size:13px;border:1px dashed var(--border2);border-radius:var(--r)}
+
+    @media(max-width:900px){
+      .map-sidebar{display:none}
+      .main{margin-right:0}
+    }
+  </style>
+</head>
+<body>
+
+<!-- ── Login Overlay ── -->
+<div id="login-overlay">
+  <div class="login-card">
+    <div class="login-logo">🔐</div>
+    <div class="login-title">简历管理后台</div>
+    <div class="login-sub">仅限管理员访问</div>
+    <div class="login-field">
+      <label>账号</label>
+      <input type="text" id="login-user" placeholder="请输入账号" autocomplete="username"/>
+    </div>
+    <div class="login-field">
+      <label>密码</label>
+      <input type="password" id="login-pass" placeholder="请输入密码" autocomplete="current-password"/>
+    </div>
+    <button class="login-btn" onclick="doLogin()">进入后台</button>
+    <div class="login-err" id="login-err"></div>
+  </div>
+</div>
+
+<!-- ── Topbar ── -->
+<div class="topbar">
+  <div class="topbar-brand">✏️ 简历后台</div>
+  <div class="topbar-breadcrumb">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg>
+    <span id="breadcrumb-text">基本信息</span>
+  </div>
+  <a class="btn btn-ghost btn-sm" href="resume-dubinheng.html" target="_blank">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+    预览简历
+  </a>
+  <button class="btn btn-primary btn-sm" onclick="saveAll()">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>
+    保存
+  </button>
+  <span id="save-status" style="font-size:11px;color:var(--muted)"></span>
+</div>
+
+<!-- ── Sidebar ── -->
+<div class="sidebar">
+  <div class="nav-label">简历模块</div>
+  <div class="nav-item active" onclick="showPanel('personal',this,'基本信息')">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+    <div class="nav-dot"></div>基本信息
+  </div>
+  <div class="nav-item" onclick="showPanel('about',this,'自我介绍')">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4M12 8h.01"/></svg>
+    <div class="nav-dot"></div>自我介绍 & 数据
+  </div>
+  <div class="nav-item" onclick="showPanel('experience',this,'工作经历')">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 7V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v2"/></svg>
+    <div class="nav-dot"></div>工作经历
+  </div>
+  <div class="nav-item" onclick="showPanel('projects',this,'AI 项目')">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="8" width="18" height="13" rx="2"/><path d="M12 8V5"/><circle cx="12" cy="4" r="1"/></svg>
+    <div class="nav-dot"></div>AI 项目
+  </div>
+  <div class="nav-item" onclick="showPanel('portfolio',this,'作品展示')">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 21h8M12 17v4"/></svg>
+    <div class="nav-dot"></div>作品展示
+  </div>
+  <div class="nav-item" onclick="showPanel('skills',this,'技能')">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/></svg>
+    <div class="nav-dot"></div>技能气泡图
+  </div>
+
+  <div class="nav-label" style="margin-top:12px">数据</div>
+  <div class="nav-item" onclick="exportJSON()">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+    <div class="nav-dot"></div>导出备份
+  </div>
+  <div class="nav-item" onclick="importJSON()">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+    <div class="nav-dot"></div>导入数据
+  </div>
+  <div class="nav-item" onclick="resetData()">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/></svg>
+    <div class="nav-dot"></div>恢复默认
+  </div>
+</div>
+
+<!-- ── Main ── -->
+<div class="main">
+
+  <!-- 基本信息 -->
+  <div class="panel active" id="panel-personal">
+    <div class="panel-hero">
+      <div class="panel-hero-icon">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+      </div>
+      <div class="panel-hero-text">
+        <h2>基本信息</h2>
+        <p>修改这里会影响简历最顶部的 Hero 卡片，包括姓名、联系方式、意向标签。</p>
+        <div class="resume-pos">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+          显示在简历 → 第一屏 Hero 区
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-header">
+        <div><div class="card-title">核心展示字段</div><div class="card-sub">这些是简历最顶部左侧显示的内容</div></div>
+      </div>
+      <div class="form-grid">
+        <div class="form-row" style="grid-column:1/-1">
+          <div class="form-label"><label>头像图片链接</label><span class="field-pos">名字左侧圆形头像</span></div>
+          <input id="p-avatar" type="text" placeholder="https://... （粘贴图片直链，留空显示默认emoji）"/>
+          <div class="form-hint">💡 推荐上传到 <a href="https://sm.ms" target="_blank" style="color:var(--primary)">sm.ms</a> 获取图片直链，建议正方形图片，自动裁成圆形</div>
+        </div>
+        <div class="form-row">
+          <div class="form-label"><label>姓名</label><span class="field-pos">大标题 · 左上角</span></div>
+          <input id="p-name" type="text"/>
+        </div>
+        <div class="form-row">
+          <div class="form-label"><label>顶部小标签（Badge）</label><span class="field-pos">姓名上方胶囊标签</span></div>
+          <input id="p-badge" type="text"/>
+          <div class="form-hint">例如：<strong>新媒体运营 · AI应用</strong>，显示在名字正上方</div>
+        </div>
+        <div class="form-row">
+          <div class="form-label"><label>手机号</label><span class="field-pos">联系方式区</span></div>
+          <input id="p-phone" type="text"/>
+        </div>
+        <div class="form-row">
+          <div class="form-label"><label>邮箱</label><span class="field-pos">联系方式区</span></div>
+          <input id="p-email" type="text"/>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-header">
+        <div><div class="card-title">右侧信息栏</div><div class="card-sub">显示在 Hero 卡片右侧的基础信息</div></div>
+      </div>
+      <div class="form-grid">
+        <div class="form-row">
+          <div class="form-label"><label>所在地</label><span class="field-pos">Hero 右侧第1行</span></div>
+          <input id="p-location" type="text" placeholder="重庆 · 可远程"/>
+        </div>
+        <div class="form-row">
+          <div class="form-label"><label>生日</label><span class="field-pos">🎂 Hero 信息栏</span></div>
+          <input id="p-birthday" type="text" placeholder="1997.9"/>
+        </div>
+        <div class="form-row">
+          <div class="form-label"><label>工作经验</label><span class="field-pos">💼 Hero 信息栏</span></div>
+          <input id="p-experience" type="text" placeholder="5年经验"/>
+        </div>
+        <div class="form-row">
+          <div class="form-label"><label>到岗状态</label><span class="field-pos">Hero 右侧第3行</span></div>
+          <input id="p-availability" type="text" placeholder="可立即入职"/>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-header">
+        <div><div class="card-title">意向标签</div><div class="card-sub">同时控制 Hero 右侧彩色标签 和 顶部打字轮播效果（两个地方都用这些文字）</div></div>
+      </div>
+      <div class="tag-editor" id="intent-tags"></div>
+      <div class="tag-add-row">
+        <input id="intent-input" placeholder="添加意向（如：AI产品运营）" onkeydown="if(event.key==='Enter')addIntentTag()"/>
+        <button class="btn btn-ghost btn-sm" onclick="addIntentTag()">+ 添加</button>
+      </div>
+      <div class="form-hint" style="margin-top:8px">💡 这里写的每一条，都会在姓名下方轮流打字显示，也会在右侧显示为彩色标签</div>
+    </div>
+  </div>
+
+  <!-- 自我介绍 -->
+  <div class="panel" id="panel-about">
+    <div class="panel-hero">
+      <div class="panel-hero-icon">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4M12 8h.01"/></svg>
+      </div>
+      <div class="panel-hero-text">
+        <h2>自我介绍 & 数据指标</h2>
+        <p>简历第二个模块。两段文字 + 一排橙色数据指标卡片（1500+、TOP 3 这些）。</p>
+        <div class="resume-pos">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+          显示在简历 → 第二屏「自我介绍」卡片
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-header"><div><div class="card-title">正文两段话</div><div class="card-sub">支持用 &lt;strong&gt;文字&lt;/strong&gt; 让关键词加粗显示</div></div></div>
+      <div class="form-row">
+        <div class="form-label"><label>第一段 — 运营背景</label><span class="field-pos">上半段文字</span></div>
+        <textarea id="about-p1" style="min-height:110px"></textarea>
+        <div class="form-hint">💡 用 <strong>&lt;strong&gt;关键词&lt;/strong&gt;</strong> 包裹文字可以让它加粗变白色</div>
+      </div>
+      <div class="form-row">
+        <div class="form-label"><label>第二段 — AI技能</label><span class="field-pos">下半段文字</span></div>
+        <textarea id="about-p2" style="min-height:110px"></textarea>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-header">
+        <div><div class="card-title">数据指标</div><div class="card-sub">显示在自我介绍下方的橙色数字卡片区，用大数字快速展示成绩</div></div>
+        <button class="btn btn-ghost btn-sm" onclick="addStat()">+ 添加指标</button>
+      </div>
+      <div class="stat-list" id="stat-list"></div>
+      <div class="form-hint">💡 左边是大数字（如 <strong>1500+</strong>），右边是说明文字（如 <strong>单年有效留咨</strong>）</div>
+    </div>
+  </div>
+
+  <!-- 工作经历 -->
+  <div class="panel" id="panel-experience">
+    <div class="panel-hero">
+      <div class="panel-hero-icon">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 7V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v2"/></svg>
+      </div>
+      <div class="panel-hero-text">
+        <h2>工作经历</h2>
+        <p>时间轴形式展示，每一段工作从上到下排列，最新的在最上面。每段可以写多条亮点。</p>
+        <div class="resume-pos">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+          显示在简历 → 第三屏「工作经历」时间轴
+        </div>
+      </div>
+    </div>
+    <button class="btn btn-primary btn-sm" style="margin-bottom:14px" onclick="addExp()">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+      新增一段工作经历
+    </button>
+    <div id="exp-list"></div>
+  </div>
+
+  <!-- AI 项目 -->
+  <div class="panel" id="panel-projects">
+    <div class="panel-hero">
+      <div class="panel-hero-icon">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="8" width="18" height="13" rx="2"/><path d="M12 8V5"/><circle cx="12" cy="4" r="1"/></svg>
+      </div>
+      <div class="panel-hero-text">
+        <h2>AI 项目</h2>
+        <p>展示你自学和独立搭建的 AI 工具项目，每个项目一张卡片，可配置「演示入口」。</p>
+        <div class="resume-pos">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+          显示在简历 → 第四屏「AI 自学项目」卡片
+        </div>
+      </div>
+    </div>
+    <button class="btn btn-primary btn-sm" style="margin-bottom:14px" onclick="addProj()">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+      新增项目
+    </button>
+    <div id="proj-list"></div>
+  </div>
+
+  <!-- 作品展示 -->
+  <div class="panel" id="panel-portfolio">
+    <div class="panel-hero">
+      <div class="panel-hero-icon">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 21h8M12 17v4"/></svg>
+      </div>
+      <div class="panel-hero-text">
+        <h2>作品展示</h2>
+        <p>卡片式展示你的账号主页、视频、自动化工作流、项目截图。填入链接后卡片可直接点击跳转。</p>
+        <div class="resume-pos">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+          显示在简历 → 第五屏「作品展示」卡片区
+        </div>
+      </div>
+    </div>
+    <button class="btn btn-primary btn-sm" style="margin-bottom:14px" onclick="addPort()">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+      新增作品
+    </button>
+    <div id="port-list"></div>
+  </div>
+
+  <!-- 技能 -->
+  <div class="panel" id="panel-skills">
+    <div class="panel-hero">
+      <div class="panel-hero-icon">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/></svg>
+      </div>
+      <div class="panel-hero-text">
+        <h2>技能（气泡图）</h2>
+        <p>简历最底部的技能气泡图，圆越大代表越熟练。每个分组对应一种颜色的气泡。</p>
+        <div class="resume-pos">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+          显示在简历 → 最后一屏「技能」气泡图
+        </div>
+      </div>
+    </div>
+    <div class="card" style="background:#FDF0EA;border-color:#F2D5C4">
+      <div style="font-size:12px;color:var(--primary);line-height:1.7">
+        💡 <strong>气泡大小由顺序决定</strong>：每组里排第一的技能气泡最大（最熟练），往后依次变小。<br>
+        想调整某项技能的气泡大小，只需在下面调整它在列表里的位置顺序即可。
+      </div>
+    </div>
+    <button class="btn btn-primary btn-sm" style="margin:14px 0" onclick="addSkillGroup()">+ 新增分组</button>
+    <div id="skill-groups"></div>
+  </div>
+
+</div>
+
+<!-- ── Map Sidebar ── -->
+<div class="map-sidebar">
+  <div class="map-title">简历结构</div>
+  <div class="resume-map">
+    <div class="map-block active" id="map-personal" onclick="showPanel('personal',null,'基本信息')">
+      <div class="map-block-name">① Hero 区</div>
+      <div class="map-block-hint">姓名 · 联系方式 · 意向标签</div>
+    </div>
+    <div class="map-arrow">↓</div>
+    <div class="map-block" id="map-about" onclick="showPanel('about',null,'自我介绍')">
+      <div class="map-block-name">② 自我介绍</div>
+      <div class="map-block-hint">两段文字 + 数据指标</div>
+    </div>
+    <div class="map-arrow">↓</div>
+    <div class="map-block" id="map-experience" onclick="showPanel('experience',null,'工作经历')">
+      <div class="map-block-name">③ 工作经历</div>
+      <div class="map-block-hint">时间轴 · 多段工作</div>
+    </div>
+    <div class="map-arrow">↓</div>
+    <div class="map-block" id="map-projects" onclick="showPanel('projects',null,'AI 项目')">
+      <div class="map-block-name">④ AI 项目</div>
+      <div class="map-block-hint">项目卡片 + 演示入口</div>
+    </div>
+    <div class="map-arrow">↓</div>
+    <div class="map-block" id="map-portfolio" onclick="showPanel('portfolio',null,'作品展示')">
+      <div class="map-block-name">⑤ 作品展示</div>
+      <div class="map-block-hint">账号 · 视频 · 工作流</div>
+    </div>
+    <div class="map-arrow">↓</div>
+    <div class="map-block" id="map-skills" onclick="showPanel('skills',null,'技能')">
+      <div class="map-block-name">⑥ 技能气泡图</div>
+      <div class="map-block-hint">圆大 = 越熟练</div>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+<input type="file" id="import-file" accept=".json" style="display:none" onchange="handleImport(event)"/>
+
+<script>
+const DEFAULT={
+  personal:{badge:"新媒体运营 · AI应用",name:"杜斌衡",phone:"18225011525",email:"405120279@qq.com",location:"重庆 · 可远程",birthday:"1997.9",experience:"5年经验",availability:"可立即入职",intents:["跨境电商运营","新媒体运营","AI工具应用"]},
+  about:{
+    p1:"<strong>5年新媒体运营经验</strong>，擅长抖音、小红书账号从0到1冷启动与内容矩阵搭建，曾服务美业连锁品牌、教育机构等行业，全程主导内容策划、拍摄剪辑、SEO优化及投流转化链路，具备完整的<strong>增长闭环运营能力</strong>。所有技能均为自学，学习迁移速度快，对新事物有极强探索欲。",
+    p2:"2025年以来深度自学<strong>AI工具链</strong>（Claude Code、ComfyUI、n8n、Playwright自动化等），已独立搭建小红书自动发布系统、AI简历筛查工具并部署上线，具备将<strong>AI工具融入内容运营&效率提升</strong>的实战能力，是少有的既懂运营又能动手搭AI工具的复合型选手。",
+    stats:[{value:"1500+",label:"单年有效留咨（教育）"},{value:"300+",label:"半年B端留咨（美业）"},{value:"10%",label:"B端招商转化率"},{value:"50%",label:"教学课程成交率"},{value:"TOP 3",label:"小红书行业关键词排名"}]
+  },
+  experience:[
+    {id:"exp1",role:"招商运营 / 老板助理",company:"梵莎美业连锁品牌公司 · 美业",period:"2024.05 — 2025.06",bullets:["<strong>创始人IP冷启动：</strong>主导抖音+小红书创始人IP账号从0搭建，SEO优化使「美甲加盟」「自助美甲店」等B端关键词排名<strong>前3</strong>，半年有效留咨<strong>300+</strong>，转化率<strong>10%</strong>，为全体系单账号留咨第一。","<strong>内容矩阵执行：</strong>负责招商账号编导、拍摄、剪辑，月均产出<strong>20–30条</strong>抖音视频并同步分发至小红书，单条最高获赞613。","<strong>私域与品牌维护：</strong>设计加盟商引流链路，优化招商PPT，辅助创始人私域直播；处理小红书负面帖<strong>10+条</strong>（删除/限流）。","<strong>招商辅助：</strong>承担老板助理日常事务，参与意向客户初筛及线下拜访。"],tags:["小红书SEO:tag-red","抖音运营:tag-orange","B端招商:tag-gray","私域转化:tag-gray","IP冷启动:tag-purple"]},
+    {id:"exp2",role:"新媒体运营主管",company:"遵义市新世纪外国语学校 · 教育",period:"2022.12 — 2024.04",bullets:["<strong>账号矩阵0到1：</strong>从零搭建抖音、视频号、小红书账号矩阵，全年累计有效留咨<strong>1500+</strong>，成功验证「教育内容+本地化运营」增长模型。","<strong>精准转化：</strong>基于家长教育焦虑用户画像设计内容及投流方案，正课转化率<strong>25–35%</strong>，留咨成本控制在同行均值<strong>80%</strong>。","<strong>全链路执行：</strong>负责日常运营、线上线下活动策划、内容剪辑，持续优化本地推ROI。"],tags:["本地推投流:tag-blue","转化优化:tag-green","内容矩阵:tag-gray","用户画像:tag-gray"]},
+    {id:"exp3",role:"老板助理 / 拍摄剪辑",company:"重庆慧星希管理有限公司 · 代运营",period:"2020.09 — 2022.12",bullets:["<strong>多品牌内容制作：</strong>为仇婆抄手、陶妈妈零食厂、重庆体彩等本地品牌制作抖音视频，覆盖品宣与产品推广场景。","<strong>教学账号独立运营：</strong>「知识干货+场景化展示」留咨钩子设计，周均留咨<strong>50+</strong>，成交率达<strong>50%</strong>。","<strong>数据驱动迭代：</strong>A/B测试剧情vs口播脚本，推动视频完播率提升<strong>25%</strong>。"],tags:["Final Cut Pro:tag-gray","剪映:tag-gray","A/B测试:tag-green","完播率优化:tag-orange"]}
+  ],
+  projects:[
+    {id:"proj1",name:"小红书自动发布草稿系统",demo:"",desc:"基于 n8n + Node.js + Playwright 搭建的自动化内容发布流水线。用 Persistent Context 解决浏览器 Profile 缓存问题，实现从「接收内容」→「打开创作平台」→「上传图文 + 自动打Tag + 加入合集」→「保存草稿」全链路无人值守运行。",tags:["n8n:tag-blue","Playwright:tag-blue","Node.js:tag-gray","浏览器自动化:tag-gray","内容运营提效:tag-green"]},
+    {id:"proj2",name:"AI 简历筛查工具",demo:"local",desc:"使用 Flask + Claude API 构建的 B 端简历批量分析平台。独立完成 Mac → GitHub → 腾讯云服务器 SSH 全链路部署，建立 smoke test + 进程守护机制，掌握完整的「AI工具开发 → 测试 → 上线」工程流程。",tags:["Claude API:tag-red","Flask:tag-gray","腾讯云:tag-gray","GitHub:tag-gray","已上线:tag-green"]},
+    {id:"proj3",name:"ComfyUI 图像生成工作流研究",demo:"",desc:"深度研究 ComfyUI 节点工作流搭建，探索 AI 图像生成在内容运营中的实际应用场景（封面图、产品图、人物IP形象）。",tags:["ComfyUI:tag-purple","Stable Diffusion:tag-purple","AI图像:tag-gray","内容创作:tag-green"]}
+  ],
+  portfolio:[
+    {id:"port1",type:"account",title:"梵莎美业 · 小红书账号",meta:"SEO冷启动 · 留咨300+",link:"",emoji:"📱",img:""},
+    {id:"port2",type:"account",title:"教育机构 · 抖音账号矩阵",meta:"全年留咨1500+",link:"",emoji:"🎓",img:""},
+    {id:"port3",type:"video",title:"代表作视频",meta:"最高获赞613",link:"",emoji:"🎬",img:""},
+    {id:"port4",type:"workflow",title:"小红书自动发布工作流",meta:"n8n · Playwright",link:"",emoji:"⚡",img:""},
+    {id:"port5",type:"screenshot",title:"AI简历筛查工具",meta:"Flask · Claude API · 已上线",link:"",emoji:"🤖",img:""},
+  ],
+  skills:[
+    {group:"内容运营",items:["小红书运营","抖音运营","内容策划","视频号","TikTok","Instagram"]},
+    {group:"策略 & 增长",items:["SEO优化","投流优化","私域转化","A/B测试","用户画像分析"]},
+    {group:"制作工具",items:["剪映","Final Cut Pro","Canva"]},
+    {group:"AI 工具",items:["Claude / ChatGPT","n8n","Playwright","ComfyUI","Claude Code","Midjourney"]}
+  ]
+};
+
+let DATA={};
+let dirty=false;
+const PANEL_MAP={personal:'personal',about:'about',experience:'experience',projects:'projects',portfolio:'portfolio',skills:'skills'};
+
+function loadData(){
+  try{const s=localStorage.getItem('resume_data');DATA=s?JSON.parse(s):JSON.parse(JSON.stringify(DEFAULT));}
+  catch(e){DATA=JSON.parse(JSON.stringify(DEFAULT));}
+}
+
+function markDirty(){
+  dirty=true;
+  document.getElementById('save-status').textContent='● 未保存';
+  document.getElementById('save-status').style.color='#E7A15F';
+}
+
+// ── Nav ──────────────────────────────────────────────────────
+function showPanel(name, navEl, label){
+  document.querySelectorAll('.panel').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(n=>n.classList.remove('active'));
+  document.querySelectorAll('.map-block').forEach(b=>b.classList.remove('active'));
+  document.getElementById('panel-'+name).classList.add('active');
+  document.getElementById('map-'+name)?.classList.add('active');
+  if(navEl) navEl.classList.add('active');
+  else {
+    // find the nav item with matching panel
+    document.querySelectorAll('.nav-item').forEach(n=>{
+      if(n.getAttribute('onclick')?.includes("'"+name+"'")) n.classList.add('active');
+    });
+  }
+  document.getElementById('breadcrumb-text').textContent = label||name;
+  window.scrollTo(0,0);
+}
+
+// ── Save ──────────────────────────────────────────────────────
+function collectAll(){
+  DATA.personal.avatar=v('p-avatar');
+  DATA.personal.name=v('p-name');DATA.personal.badge=v('p-badge');
+  DATA.personal.phone=v('p-phone');DATA.personal.email=v('p-email');
+  DATA.personal.location=v('p-location');DATA.personal.birthday=v('p-birthday');DATA.personal.experience=v('p-experience');
+  DATA.personal.availability=v('p-availability');
+  DATA.about.p1=document.getElementById('about-p1')?.value||'';
+  DATA.about.p2=document.getElementById('about-p2')?.value||'';
+}
+
+function saveAll(){
+  collectAll();
+  localStorage.setItem('resume_data',JSON.stringify(DATA));
+  dirty=false;
+  const s=document.getElementById('save-status');
+  s.textContent='已保存 ✓';s.style.color='#8AA06A';
+  toast('保存成功 ✓');
+}
+
+function resetData(){
+  if(!confirm('确认恢复默认数据？当前修改将丢失。'))return;
+  DATA=JSON.parse(JSON.stringify(DEFAULT));
+  localStorage.setItem('resume_data',JSON.stringify(DATA));
+  initAll();toast('已恢复默认数据');
+}
+
+function toast(msg){
+  const t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');
+  setTimeout(()=>t.classList.remove('show'),2200);
+}
+function v(id){return document.getElementById(id)?.value?.trim()||''}
+
+// ── Personal ──────────────────────────────────────────────────
+function initPersonal(){
+  const P=DATA.personal;
+  ['avatar','name','badge','phone','email','location','birthday','experience','availability'].forEach(k=>{
+    const el=document.getElementById('p-'+k);
+    if(el){el.value=P[k]||'';el.addEventListener('input',markDirty);}
+  });
+  renderIntentTags();
+}
+function renderIntentTags(){
+  const c=document.getElementById('intent-tags');
+  c.innerHTML=(DATA.personal.intents||[]).map((t,i)=>`<span class="tag-chip">${t}<button onclick="removeIntentTag(${i})">×</button></span>`).join('');
+}
+function addIntentTag(){
+  const inp=document.getElementById('intent-input');const val=inp.value.trim();if(!val)return;
+  DATA.personal.intents=DATA.personal.intents||[];DATA.personal.intents.push(val);inp.value='';renderIntentTags();markDirty();
+}
+function removeIntentTag(i){DATA.personal.intents.splice(i,1);renderIntentTags();markDirty();}
+
+// ── About ─────────────────────────────────────────────────────
+function initAbout(){
+  document.getElementById('about-p1').value=DATA.about.p1||'';
+  document.getElementById('about-p2').value=DATA.about.p2||'';
+  ['about-p1','about-p2'].forEach(id=>{
+    document.getElementById(id)?.addEventListener('input',e=>{
+      DATA.about[id==='about-p1'?'p1':'p2']=e.target.value;markDirty();
+    });
+  });
+  renderStats();
+}
+function renderStats(){
+  const list=document.getElementById('stat-list');
+  list.innerHTML=(DATA.about.stats||[]).map((s,i)=>`
+    <div class="stat-row">
+      <input class="stat-val-input" value="${s.value}" placeholder="1500+" oninput="DATA.about.stats[${i}].value=this.value;markDirty()"/>
+      <input value="${s.label}" placeholder="说明文字" oninput="DATA.about.stats[${i}].label=this.value;markDirty()"/>
+      <button class="icon-btn" onclick="removeStat(${i})"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
+    </div>`).join('');
+}
+function addStat(){DATA.about.stats=DATA.about.stats||[];DATA.about.stats.push({value:'',label:''});renderStats();markDirty();}
+function removeStat(i){DATA.about.stats.splice(i,1);renderStats();markDirty();}
+
+// ── Experience ────────────────────────────────────────────────
+function initExp(){renderExpList();}
+function renderExpList(){
+  const list=document.getElementById('exp-list');
+  if(!DATA.experience?.length){list.innerHTML='<div class="empty-hint">暂无工作经历，点击上方「新增」添加</div>';return;}
+  list.innerHTML=DATA.experience.map((e,i)=>`
+    <div class="exp-card" id="expcard-${e.id}">
+      <div class="item-head" onclick="toggleItem('expcard-${e.id}')">
+        <div class="item-head-info">
+          <div class="item-head-title">${e.role||'未填写职位'}</div>
+          <div class="item-head-meta">${e.company||''} ${e.period?'· '+e.period:''}</div>
+        </div>
+        <svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+      </div>
+      <div class="item-body">
+        <div class="item-body-inner">
+          <div class="form-grid" style="margin-bottom:12px">
+            <div class="form-row">
+              <div class="form-label"><label>职位名称</label><span class="field-pos">时间轴左侧大标题</span></div>
+              <input value="${e.role||''}" oninput="DATA.experience[${i}].role=this.value;document.querySelector('#expcard-${e.id} .item-head-title').textContent=this.value||'未填写职位';markDirty()"/>
+            </div>
+            <div class="form-row">
+              <div class="form-label"><label>公司名称</label><span class="field-pos">职位下方灰色小字</span></div>
+              <input value="${e.company||''}" oninput="DATA.experience[${i}].company=this.value;markDirty()"/>
+            </div>
+            <div class="form-row">
+              <div class="form-label"><label>时间段</label><span class="field-pos">右侧时间胶囊</span></div>
+              <input value="${e.period||''}" placeholder="2024.05 — 2025.06" oninput="DATA.experience[${i}].period=this.value;markDirty()"/>
+            </div>
+          </div>
+          <div class="form-row">
+            <div class="form-label"><label>工作亮点</label><span class="field-pos">时间轴下方每一条小圆点</span></div>
+            <div class="form-hint" style="margin-bottom:8px">每一条对应简历里的一个圆点项，用 <strong>&lt;strong&gt;关键词&lt;/strong&gt;</strong> 让重要数字加粗</div>
+            <div class="bullet-list" id="bullets-${e.id}"></div>
+            <button class="btn btn-ghost btn-sm" onclick="addBullet(${i},'${e.id}')">+ 添加一条亮点</button>
+          </div>
+          <div class="form-row" style="margin-top:12px">
+            <div class="form-label"><label>标签</label><span class="field-pos">该段工作下方彩色小标签</span></div>
+            <div class="tag-editor" id="exptags-${e.id}"></div>
+            <div class="tag-add-row">
+              <input id="exptag-input-${e.id}" placeholder="标签名" onkeydown="if(event.key==='Enter')addExpTag(${i},'${e.id}')"/>
+              <select id="exptag-color-${e.id}" class="tag-color-select">
+                <option value="tag-gray">默认灰</option><option value="tag-red">红/粉</option>
+                <option value="tag-blue">蓝</option><option value="tag-green">绿</option>
+                <option value="tag-orange">橙</option><option value="tag-purple">紫</option>
+              </select>
+              <button class="btn btn-ghost btn-sm" onclick="addExpTag(${i},'${e.id}')">+ 添加</button>
+            </div>
+          </div>
+          <div style="margin-top:14px;padding-top:12px;border-top:1px solid var(--border2)">
+            <button class="btn btn-danger btn-sm" onclick="removeExp(${i})">删除这段工作经历</button>
+          </div>
+        </div>
+      </div>
+    </div>`).join('');
+  DATA.experience.forEach((e,i)=>{renderBullets(i,e.id);renderExpTags(i,e.id);});
+}
+function toggleItem(id){document.getElementById(id).classList.toggle('item-open');}
+function renderBullets(ei,eid){
+  const c=document.getElementById('bullets-'+eid);if(!c)return;
+  c.innerHTML=(DATA.experience[ei].bullets||[]).map((b,bi)=>`
+    <div class="bullet-row">
+      <textarea oninput="DATA.experience[${ei}].bullets[${bi}]=this.value;markDirty()">${b}</textarea>
+      <button class="icon-btn" onclick="removeBullet(${ei},${bi},'${eid}')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
+    </div>`).join('');
+}
+function addBullet(ei,eid){DATA.experience[ei].bullets=DATA.experience[ei].bullets||[];DATA.experience[ei].bullets.push('');renderBullets(ei,eid);markDirty();}
+function removeBullet(ei,bi,eid){DATA.experience[ei].bullets.splice(bi,1);renderBullets(ei,eid);markDirty();}
+function renderExpTags(ei,eid){
+  const c=document.getElementById('exptags-'+eid);if(!c)return;
+  c.innerHTML=(DATA.experience[ei].tags||[]).map((t,ti)=>{const[l]=t.split(':');return`<span class="tag-chip">${l}<button onclick="removeExpTag(${ei},${ti},'${eid}')">×</button></span>`;}).join('');
+}
+function addExpTag(ei,eid){
+  const inp=document.getElementById(`exptag-input-${eid}`),col=document.getElementById(`exptag-color-${eid}`);
+  const val=inp.value.trim();if(!val)return;
+  DATA.experience[ei].tags=DATA.experience[ei].tags||[];DATA.experience[ei].tags.push(`${val}:${col.value}`);
+  inp.value='';renderExpTags(ei,eid);markDirty();
+}
+function removeExpTag(ei,ti,eid){DATA.experience[ei].tags.splice(ti,1);renderExpTags(ei,eid);markDirty();}
+function addExp(){
+  const id='exp'+Date.now();DATA.experience=DATA.experience||[];
+  DATA.experience.unshift({id,role:'',company:'',period:'',bullets:[],tags:[]});
+  renderExpList();setTimeout(()=>document.getElementById('expcard-'+id)?.classList.add('item-open'),50);markDirty();
+}
+function removeExp(i){if(!confirm('确认删除？'))return;DATA.experience.splice(i,1);renderExpList();markDirty();}
+
+// ── Projects ──────────────────────────────────────────────────
+function initProjects(){renderProjList();}
+function renderProjList(){
+  const list=document.getElementById('proj-list');
+  if(!DATA.projects?.length){list.innerHTML='<div class="empty-hint">暂无项目</div>';return;}
+  list.innerHTML=DATA.projects.map((p,i)=>`
+    <div class="proj-card" id="projcard-${p.id}">
+      <div class="item-head" onclick="toggleItem('projcard-${p.id}')">
+        <div class="item-head-info">
+          <div class="item-head-title">${p.name||'未命名项目'}</div>
+          <div class="item-head-meta">演示：${p.demo==='local'?'面试现场演示':p.demo?'外链':'无'}</div>
+        </div>
+        <svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+      </div>
+      <div class="item-body"><div class="item-body-inner">
+        <div class="form-row">
+          <div class="form-label"><label>项目名称</label><span class="field-pos">卡片顶部大标题</span></div>
+          <input value="${p.name||''}" oninput="DATA.projects[${i}].name=this.value;document.querySelector('#projcard-${p.id} .item-head-title').textContent=this.value||'未命名项目';markDirty()"/>
+        </div>
+        <div class="form-row">
+          <div class="form-label"><label>演示入口</label><span class="field-pos">卡片右上角标签</span></div>
+          <select onchange="DATA.projects[${i}].demo=this.value==='local'?'local':this.value==='none'?'':'';markDirty()">
+            <option value="none" ${!p.demo?'selected':''}>无演示</option>
+            <option value="local" ${p.demo==='local'?'selected':''}>✦ 面试可现场演示</option>
+            <option value="link" ${p.demo&&p.demo!=='local'?'selected':''}>外部链接</option>
+          </select>
+        </div>
+        <div class="form-row">
+          <div class="form-label"><label>项目描述</label><span class="field-pos">卡片正文</span></div>
+          <textarea oninput="DATA.projects[${i}].desc=this.value;markDirty()">${p.desc||''}</textarea>
+        </div>
+        <div class="form-row">
+          <div class="form-label"><label>标签</label><span class="field-pos">卡片底部彩色标签</span></div>
+          <div class="tag-editor" id="projtags-${p.id}"></div>
+          <div class="tag-add-row">
+            <input id="projtag-input-${p.id}" placeholder="标签名" onkeydown="if(event.key==='Enter')addProjTag(${i},'${p.id}')"/>
+            <select id="projtag-color-${p.id}" class="tag-color-select">
+              <option value="tag-gray">默认灰</option><option value="tag-red">红/粉</option>
+              <option value="tag-blue">蓝</option><option value="tag-green">绿</option>
+              <option value="tag-orange">橙</option><option value="tag-purple">紫</option>
+            </select>
+            <button class="btn btn-ghost btn-sm" onclick="addProjTag(${i},'${p.id}')">+ 添加</button>
+          </div>
+        </div>
+        <div style="margin-top:14px;padding-top:12px;border-top:1px solid var(--border2)">
+          <button class="btn btn-danger btn-sm" onclick="removeProj(${i})">删除项目</button>
+        </div>
+      </div></div>
+    </div>`).join('');
+  DATA.projects.forEach((p,i)=>renderProjTags(i,p.id));
+}
+function renderProjTags(pi,pid){
+  const c=document.getElementById('projtags-'+pid);if(!c)return;
+  c.innerHTML=(DATA.projects[pi].tags||[]).map((t,ti)=>{const[l]=t.split(':');return`<span class="tag-chip">${l}<button onclick="removeProjTag(${pi},${ti},'${pid}')">×</button></span>`;}).join('');
+}
+function addProjTag(pi,pid){
+  const inp=document.getElementById(`projtag-input-${pid}`),col=document.getElementById(`projtag-color-${pid}`);
+  const val=inp.value.trim();if(!val)return;
+  DATA.projects[pi].tags=DATA.projects[pi].tags||[];DATA.projects[pi].tags.push(`${val}:${col.value}`);
+  inp.value='';renderProjTags(pi,pid);markDirty();
+}
+function removeProjTag(pi,ti,pid){DATA.projects[pi].tags.splice(ti,1);renderProjTags(pi,pid);markDirty();}
+function addProj(){
+  const id='proj'+Date.now();DATA.projects=DATA.projects||[];
+  DATA.projects.unshift({id,name:'',demo:'',desc:'',tags:[]});
+  renderProjList();setTimeout(()=>document.getElementById('projcard-'+id)?.classList.add('item-open'),50);markDirty();
+}
+function removeProj(i){if(!confirm('确认删除？'))return;DATA.projects.splice(i,1);renderProjList();markDirty();}
+
+// ── Portfolio ─────────────────────────────────────────────────
+function initPortfolio(){renderPortList();}
+function renderPortList(){
+  const list=document.getElementById('port-list');if(!list)return;
+  if(!(DATA.portfolio||[]).length){list.innerHTML='<div class="empty-hint">暂无作品</div>';return;}
+  list.innerHTML=(DATA.portfolio||[]).map((p,i)=>`
+    <div class="port-card-admin" id="portcard-${p.id}">
+      <div class="item-head" onclick="toggleItem('portcard-${p.id}')">
+        <div class="item-head-info">
+          <div class="item-head-title">${p.emoji||'📁'} ${p.title||'未命名作品'}</div>
+          <div class="item-head-meta">${{account:'📱 账号主页',video:'🎬 视频作品',workflow:'⚡ 工作流',screenshot:'🤖 项目截图'}[p.type]||p.type} · ${p.link?'有链接':'未填链接'}</div>
+        </div>
+        <svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+      </div>
+      <div class="item-body"><div class="item-body-inner">
+        <div class="form-grid">
+          <div class="form-row">
+            <div class="form-label"><label>作品标题</label><span class="field-pos">卡片下方文字</span></div>
+            <input value="${p.title||''}" oninput="DATA.portfolio[${i}].title=this.value;markDirty()"/>
+          </div>
+          <div class="form-row">
+            <div class="form-label"><label>类型</label><span class="field-pos">卡片左上角标签颜色</span></div>
+            <select oninput="DATA.portfolio[${i}].type=this.value;markDirty()">
+              <option value="account"    ${p.type==='account'?'selected':''}>📱 账号主页</option>
+              <option value="video"      ${p.type==='video'?'selected':''}>🎬 视频作品</option>
+              <option value="workflow"   ${p.type==='workflow'?'selected':''}>⚡ 工作流</option>
+              <option value="screenshot" ${p.type==='screenshot'?'selected':''}>🤖 项目截图</option>
+            </select>
+          </div>
+          <div class="form-row">
+            <div class="form-label"><label>副标题</label><span class="field-pos">卡片底部小字</span></div>
+            <input value="${p.meta||''}" placeholder="如：留咨300+" oninput="DATA.portfolio[${i}].meta=this.value;markDirty()"/>
+          </div>
+          <div class="form-row">
+            <div class="form-label"><label>Emoji</label><span class="field-pos">无封面图时显示的大图标</span></div>
+            <input value="${p.emoji||''}" placeholder="📱" style="max-width:80px" oninput="DATA.portfolio[${i}].emoji=this.value;markDirty()"/>
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="form-label"><label>跳转链接</label><span class="field-pos">点击卡片跳转的地址，留空则不可点击</span></div>
+          <input value="${p.link||''}" placeholder="https://www.xiaohongshu.com/..." oninput="DATA.portfolio[${i}].link=this.value;markDirty()"/>
+          <div class="form-hint">💡 把账号主页链接、视频链接粘贴进来，HR 点一下直接跳转</div>
+        </div>
+        <div class="form-row">
+          <div class="form-label"><label>封面图链接</label><span class="field-pos">卡片背景图，没有则显示 Emoji</span></div>
+          <input value="${p.img||''}" placeholder="https://图床链接..." oninput="DATA.portfolio[${i}].img=this.value;markDirty()"/>
+          <div class="form-hint">💡 可以截一张视频或账号的截图，上传到 <strong>sm.ms</strong>（免费图床）获取链接</div>
+        </div>
+        <div style="margin-top:14px;padding-top:12px;border-top:1px solid var(--border2)">
+          <button class="btn btn-danger btn-sm" onclick="removePort(${i})">删除</button>
+        </div>
+      </div></div>
+    </div>`).join('');
+}
+function addPort(){
+  const id='port'+Date.now();DATA.portfolio=DATA.portfolio||[];
+  DATA.portfolio.push({id,type:'account',title:'',meta:'',link:'',emoji:'📱',img:''});
+  renderPortList();setTimeout(()=>document.getElementById('portcard-'+id)?.classList.add('item-open'),50);markDirty();
+}
+function removePort(i){if(!confirm('确认删除？'))return;DATA.portfolio.splice(i,1);renderPortList();markDirty();}
+
+// ── Skills ────────────────────────────────────────────────────
+function initSkills(){renderSkillGroups();}
+function renderSkillGroups(){
+  const c=document.getElementById('skill-groups');
+  c.innerHTML=(DATA.skills||[]).map((g,gi)=>`
+    <div class="skill-group-card">
+      <div class="skill-group-head">
+        <input value="${g.group||''}" placeholder="分组名称" oninput="DATA.skills[${gi}].group=this.value;markDirty()" style="font-weight:600"/>
+        <button class="btn btn-danger btn-sm" onclick="removeSkillGroup(${gi})">删除</button>
+      </div>
+      <div class="form-hint" style="margin-bottom:8px">第一个技能气泡最大（最熟练），往后依次缩小 — 拖动调整顺序即可改变气泡大小</div>
+      <div class="tag-editor" id="skillitems-${gi}"></div>
+      <div class="tag-add-row">
+        <input id="skillinput-${gi}" placeholder="技能名" onkeydown="if(event.key==='Enter')addSkillItem(${gi})"/>
+        <button class="btn btn-ghost btn-sm" onclick="addSkillItem(${gi})">+ 添加</button>
+      </div>
+    </div>`).join('');
+  DATA.skills.forEach((_,gi)=>renderSkillItems(gi));
+}
+function renderSkillItems(gi){
+  const c=document.getElementById('skillitems-'+gi);if(!c)return;
+  c.innerHTML=(DATA.skills[gi].items||[]).map((item,ii)=>`
+    <span class="tag-chip">${ii===0?'⭐ ':ii===1?'✦ ':''}${item}
+      <button onclick="removeSkillItem(${gi},${ii})">×</button>
+    </span>`).join('');
+}
+function addSkillItem(gi){
+  const inp=document.getElementById('skillinput-'+gi);const val=inp.value.trim();if(!val)return;
+  DATA.skills[gi].items=DATA.skills[gi].items||[];DATA.skills[gi].items.push(val);inp.value='';renderSkillItems(gi);markDirty();
+}
+function removeSkillItem(gi,ii){DATA.skills[gi].items.splice(ii,1);renderSkillItems(gi);markDirty();}
+function addSkillGroup(){DATA.skills=DATA.skills||[];DATA.skills.push({group:'新分组',items:[]});renderSkillGroups();markDirty();}
+function removeSkillGroup(gi){if(!confirm('确认删除？'))return;DATA.skills.splice(gi,1);renderSkillGroups();markDirty();}
+
+// ── Export / Import ───────────────────────────────────────────
+function exportJSON(){
+  collectAll();
+  const blob=new Blob([JSON.stringify(DATA,null,2)],{type:'application/json'});
+  const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='resume-data.json';a.click();
+  toast('已导出 resume-data.json');
+}
+function importJSON(){document.getElementById('import-file').click();}
+function handleImport(e){
+  const file=e.target.files[0];if(!file)return;
+  const r=new FileReader();r.onload=ev=>{
+    try{DATA=JSON.parse(ev.target.result);localStorage.setItem('resume_data',JSON.stringify(DATA));initAll();toast('导入成功');}
+    catch{alert('JSON 格式错误，导入失败');}
+  };r.readAsText(file);e.target.value='';
+}
+
+// ── Login ─────────────────────────────────────────────────────
+const ADMIN_USER = 'Kimdu';
+const ADMIN_PASS = 'Kimdu@2026';
+function doLogin(){
+  const u=document.getElementById('login-user').value.trim();
+  const p=document.getElementById('login-pass').value;
+  const err=document.getElementById('login-err');
+  if(u===ADMIN_USER && p===ADMIN_PASS){
+    sessionStorage.setItem('admin_auth','1');
+    document.getElementById('login-overlay').classList.add('hidden');
+    err.textContent='';
+  } else {
+    err.textContent='账号或密码错误，请重试';
+    document.getElementById('login-pass').value='';
+    document.getElementById('login-pass').focus();
+  }
+}
+// Allow Enter key to submit
+document.addEventListener('keydown',e=>{
+  if(e.key==='Enter' && !document.getElementById('login-overlay').classList.contains('hidden')) doLogin();
+});
+// Check session on load
+if(sessionStorage.getItem('admin_auth')==='1'){
+  document.getElementById('login-overlay').classList.add('hidden');
+} else {
+  // Focus username field
+  setTimeout(()=>document.getElementById('login-user').focus(),100);
+}
+
+// ── Init ──────────────────────────────────────────────────────
+function initAll(){initPersonal();initAbout();initExp();initProjects();initPortfolio();initSkills();}
+loadData();initAll();
+window.addEventListener('beforeunload',e=>{if(dirty){e.preventDefault();e.returnValue='';}});
+</script>
+</body>
+</html>

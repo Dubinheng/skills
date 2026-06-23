@@ -1,0 +1,865 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+  <title>管理后台 — New Century EduNews</title>
+  <style>
+    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+    :root{
+      --pink:#FF85B3;--pink-soft:#FFD6E8;--pink-bg:#FFF5F9;
+      --mint:#5CC8A0;--mint-soft:#C2EFE0;--mint-bg:#F0FBF7;
+      --sky:#52B8E8;--sky-soft:#C2E8F8;--sky-bg:#F0F8FE;
+      --lemon:#F5C842;--lemon-soft:#FEF0B0;
+      --lavender:#9B7FD4;--lavender-soft:#DCCEF8;--lavender-bg:#F8F5FF;
+      --peach:#FF8C5A;--peach-soft:#FFD4BC;--peach-bg:#FFF7F3;
+      --bg:#FFF8FC;--surface:#fff;--surface2:#FFF2F8;
+      --border:#FFD6E8;--border2:#FFE8F2;
+      --text:#2D1A2E;--sub:#7A5E7E;--muted:#B09AB4;
+      --primary:#FF6BAC;--primary-h:#E85A9A;--primary-bg:#FFF0F8;
+      --sidebar-w:220px;--topbar-h:52px;
+      --r:12px;--rs:8px;
+      --font:-apple-system,BlinkMacSystemFont,'PingFang SC','Segoe UI',sans-serif;
+    }
+    body{font-family:var(--font);background:var(--bg);color:var(--text);font-size:14px;min-height:100vh}
+
+    /* ── Login ── */
+    #login-overlay{
+      position:fixed;inset:0;z-index:999;
+      background:linear-gradient(135deg,#1a0820 0%,#2d1040 50%,#1a0820 100%);
+      display:flex;align-items:center;justify-content:center;
+    }
+    #login-overlay.hidden{display:none}
+    .login-card{
+      background:rgba(255,255,255,.07);border:1.5px solid rgba(255,255,255,.12);
+      border-radius:20px;padding:40px;width:340px;
+      backdrop-filter:blur(20px);
+      box-shadow:0 24px 64px rgba(0,0,0,.5);text-align:center;
+    }
+    .login-logo{
+      width:52px;height:52px;border-radius:14px;margin:0 auto 18px;
+      background:linear-gradient(135deg,var(--pink),var(--lavender));
+      display:flex;align-items:center;justify-content:center;font-size:22px;
+      box-shadow:0 8px 24px rgba(255,107,172,.4);
+    }
+    .login-title{font-size:18px;font-weight:700;color:#fff;margin-bottom:4px}
+    .login-sub{font-size:11px;color:rgba(255,255,255,.4);margin-bottom:24px}
+    .login-field{margin-bottom:12px;text-align:left}
+    .login-field label{display:block;font-size:11px;color:rgba(255,255,255,.45);margin-bottom:5px}
+    .login-field input{
+      width:100%;padding:10px 14px;border-radius:10px;
+      background:rgba(255,255,255,.08);border:1.5px solid rgba(255,255,255,.15);
+      color:#fff;font-size:13px;outline:none;transition:border .2s;
+    }
+    .login-field input:focus{border-color:var(--pink)}
+    .login-field input::placeholder{color:rgba(255,255,255,.22)}
+    .login-btn{
+      width:100%;margin-top:8px;padding:11px;border:none;border-radius:10px;
+      background:var(--primary);color:#fff;font-size:14px;font-weight:600;
+      cursor:pointer;transition:background .2s,transform .1s;
+    }
+    .login-btn:hover{background:var(--primary-h)}
+    .login-btn:active{transform:scale(.98)}
+    .login-err{font-size:11px;color:#ff7b8b;margin-top:8px;min-height:16px}
+
+    /* ── Topbar ── */
+    .topbar{
+      position:fixed;top:0;left:0;right:0;height:var(--topbar-h);
+      background:var(--surface);border-bottom:1.5px solid var(--border);
+      display:flex;align-items:center;
+      padding:0 16px 0 calc(var(--sidebar-w) + 16px);
+      gap:10px;z-index:50;
+    }
+    .topbar-title{font-size:13px;font-weight:700;color:var(--text);flex:1}
+    .topbar-back{
+      display:inline-flex;align-items:center;gap:6px;padding:6px 14px;
+      border-radius:999px;border:1.5px solid var(--border2);
+      background:var(--surface2);color:var(--sub);font-size:12px;
+      font-weight:600;text-decoration:none;transition:all .15s;
+    }
+    .topbar-back:hover{border-color:var(--primary);color:var(--primary)}
+
+    /* ── Sidebar ── */
+    .sidebar{
+      position:fixed;top:var(--topbar-h);left:0;bottom:0;
+      width:var(--sidebar-w);background:var(--surface);
+      border-right:1.5px solid var(--border);
+      padding:12px 10px;overflow-y:auto;z-index:40;
+    }
+    .nav-label{font-size:10px;font-weight:700;letter-spacing:.08em;
+      text-transform:uppercase;color:var(--muted);padding:10px 10px 4px}
+    .nav-item{
+      display:flex;align-items:center;gap:9px;
+      padding:9px 12px;border-radius:var(--rs);cursor:pointer;
+      color:var(--sub);font-size:13px;transition:background .12s,color .12s;
+    }
+    .nav-item:hover{background:var(--surface2);color:var(--text)}
+    .nav-item.active{background:var(--pink-bg);color:var(--pink);font-weight:600}
+    .nav-icon{font-size:15px;width:18px;text-align:center;flex-shrink:0}
+
+    /* ── Main ── */
+    .main{margin-top:var(--topbar-h);margin-left:var(--sidebar-w);padding:24px 28px 60px}
+    .panel{display:none}.panel.active{display:block}
+
+    /* ── Cards ── */
+    .card{background:var(--surface);border:1.5px solid var(--border2);border-radius:var(--r);padding:20px 22px;margin-bottom:16px}
+    .card-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;padding-bottom:12px;border-bottom:1.5px solid var(--border2)}
+    .card-title{font-size:14px;font-weight:700;color:var(--text)}
+    .card-sub{font-size:11px;color:var(--muted);margin-top:2px}
+
+    /* ── Buttons ── */
+    .btn{display:inline-flex;align-items:center;gap:6px;padding:7px 16px;border-radius:999px;font-size:12px;font-weight:600;cursor:pointer;border:1.5px solid transparent;transition:all .15s;text-decoration:none}
+    .btn:active{transform:scale(.97)}
+    .btn-primary{background:var(--primary);color:#fff;border-color:var(--primary)}
+    .btn-primary:hover{background:var(--primary-h)}
+    .btn-ghost{background:var(--surface2);color:var(--sub);border-color:var(--border2)}
+    .btn-ghost:hover{border-color:var(--primary);color:var(--primary)}
+    .btn-danger{background:#FFF0F0;color:#E05;border-color:#FFD0D0}
+    .btn-danger:hover{background:#FFD0D0}
+    .btn-sm{padding:5px 12px;font-size:11px}
+
+    /* ── Form ── */
+    .form-row{margin-bottom:14px}
+    .form-row label{display:block;font-size:12px;font-weight:600;color:var(--sub);margin-bottom:5px}
+    .form-row input,.form-row select,.form-row textarea{
+      width:100%;background:var(--surface2);border:1.5px solid var(--border2);
+      border-radius:var(--rs);padding:8px 12px;
+      font-family:var(--font);font-size:13px;color:var(--text);
+      outline:none;transition:border .15s;
+    }
+    .form-row input:focus,.form-row select:focus,.form-row textarea:focus{border-color:var(--primary)}
+    .form-hint{font-size:11px;color:var(--muted);margin-top:4px}
+    .form-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+
+    /* ── Source table ── */
+    .source-table{width:100%;border-collapse:collapse}
+    .source-table th{font-size:11px;font-weight:700;color:var(--muted);padding:8px 10px;text-align:left;border-bottom:1.5px solid var(--border2);letter-spacing:.04em;text-transform:uppercase}
+    .source-table td{padding:10px 10px;border-bottom:1px solid var(--border2);font-size:13px;vertical-align:middle}
+    .source-table tr:last-child td{border-bottom:none}
+    .source-table tr:hover td{background:var(--surface2)}
+    .cat-pill{display:inline-block;padding:2px 10px;border-radius:999px;font-size:11px;font-weight:600}
+    .cat-english_learning{background:var(--sky-soft);color:var(--sky)}
+    .cat-youth_achievement{background:var(--lemon-soft);color:#AA8A00}
+    .cat-academic_family{background:var(--mint-soft);color:var(--mint)}
+    .toggle-switch{display:inline-block;width:34px;height:18px;background:var(--border);border-radius:9px;cursor:pointer;position:relative;transition:background .2s}
+    .toggle-switch.on{background:var(--mint)}
+    .toggle-switch::after{content:'';position:absolute;top:2px;left:2px;width:14px;height:14px;border-radius:50%;background:#fff;transition:left .2s}
+    .toggle-switch.on::after{left:18px}
+
+    /* ── Modal ── */
+    .modal-overlay{position:fixed;inset:0;z-index:200;background:rgba(45,26,46,.4);backdrop-filter:blur(4px);display:flex;align-items:center;justify-content:center;padding:20px}
+    .modal-overlay.hidden{display:none}
+    .modal{background:var(--surface);border-radius:20px;width:100%;max-width:520px;box-shadow:0 24px 64px rgba(45,26,46,.25);animation:slideUp .2s ease}
+    @keyframes slideUp{from{transform:translateY(16px);opacity:0}to{transform:none;opacity:1}}
+    .modal-header{padding:20px 24px 16px;border-bottom:1.5px solid var(--border2);display:flex;align-items:center;justify-content:space-between}
+    .modal-title{font-size:15px;font-weight:700}
+    .modal-close{width:28px;height:28px;border-radius:50%;border:none;background:var(--surface2);color:var(--sub);font-size:16px;cursor:pointer;display:flex;align-items:center;justify-content:center}
+    .modal-close:hover{background:var(--border)}
+    .modal-body{padding:20px 24px}
+    .modal-footer{padding:14px 24px;border-top:1.5px solid var(--border2);display:flex;justify-content:flex-end;gap:8px}
+
+    /* ── Stats bar ── */
+    .stats-row{display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:12px;margin-bottom:24px}
+    .stat-card{background:var(--surface);border:1.5px solid var(--border2);border-radius:var(--r);padding:16px 18px}
+    .stat-label{font-size:11px;font-weight:600;color:var(--muted);margin-bottom:4px;letter-spacing:.04em;text-transform:uppercase}
+    .stat-val{font-size:24px;font-weight:800;color:var(--text)}
+    .stat-sub{font-size:11px;color:var(--muted);margin-top:2px}
+
+    /* ── Toast ── */
+    .toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%);background:var(--text);color:#fff;padding:9px 20px;border-radius:999px;font-size:13px;font-weight:500;box-shadow:0 4px 20px rgba(0,0,0,.2);z-index:300;white-space:nowrap}
+  </style>
+</head>
+<body>
+
+<!-- Login -->
+<div id="login-overlay">
+  <div class="login-card">
+    <div class="login-logo">⚙️</div>
+    <div class="login-title">管理后台</div>
+    <div class="login-sub">New Century EduNews</div>
+    <div class="login-field"><label>密码</label><input type="password" id="login-pwd" placeholder="输入管理密码" autocomplete="current-password"/></div>
+    <button class="login-btn" id="login-btn">进入后台</button>
+    <div class="login-err" id="login-err"></div>
+  </div>
+</div>
+
+<!-- Topbar -->
+<header class="topbar" id="admin-shell" style="display:none">
+  <span class="topbar-title">⚙️ 管理后台 — New Century EduNews</span>
+  <a href="index.html" class="topbar-back">← 返回前台</a>
+</header>
+
+<!-- Sidebar -->
+<nav class="sidebar" id="admin-sidebar" style="display:none">
+  <div class="nav-label" style="padding-top:16px">管理</div>
+  <div class="nav-item active" data-panel="sources"><span class="nav-icon">📡</span> 信息源管理</div>
+  <div class="nav-item" data-panel="settings"><span class="nav-icon">🔑</span> 系统设置</div>
+  <div class="nav-item" data-panel="status"><span class="nav-icon">📊</span> 状态监控</div>
+  <div class="nav-item" data-panel="theme"><span class="nav-icon">🎨</span> 外观编辑</div>
+</nav>
+
+<!-- Main -->
+<main class="main" id="admin-main" style="display:none">
+
+  <!-- ── Sources panel ── -->
+  <div class="panel active" id="panel-sources">
+    <div class="card">
+      <div class="card-header">
+        <div><div class="card-title">📡 信息源管理</div><div class="card-sub">管理 RSS 订阅源，支持中英文双语源</div></div>
+        <button class="btn btn-primary btn-sm" id="btn-add-source">+ 添加信息源</button>
+      </div>
+      <table class="source-table" id="source-table">
+        <thead><tr>
+          <th>名称</th><th>分类</th><th>语言</th><th>启用</th><th>操作</th>
+        </tr></thead>
+        <tbody id="source-tbody"></tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- ── Settings panel ── -->
+  <div class="panel" id="panel-settings">
+    <div class="card">
+      <div class="card-header">
+        <div><div class="card-title">🔑 系统设置</div><div class="card-sub">API 密钥、缓存、翻译配置</div></div>
+        <button class="btn btn-primary btn-sm" id="btn-save-settings">保存设置</button>
+      </div>
+      <div class="form-grid">
+        <div class="form-row">
+          <label>🤖 DeepSeek API Key <span style="color:var(--mint);font-weight:400;font-size:10px">（AI摘要 & 对话）</span></label>
+          <input type="password" id="s-deepseek-key" placeholder="sk-…"/>
+          <div class="form-hint">注册获取：<a href="https://platform.deepseek.com" target="_blank" style="color:var(--primary)">platform.deepseek.com</a></div>
+        </div>
+        <div class="form-row">
+          <label>🌐 翻译接口 <span style="color:var(--mint);font-weight:400;font-size:10px">（全部免费·无需Key·自动兜底）</span></label>
+          <div id="s-translate-apis" style="display:flex;flex-wrap:wrap;gap:5px;padding:9px 12px;background:var(--mint-bg);border:1.5px solid var(--mint-soft);border-radius:var(--rs);min-height:38px">
+            <span style="color:var(--muted);font-size:11px">加载中…</span>
+          </div>
+          <div class="form-hint">某个接口失败时自动切换到下一个，无需配置</div>
+        </div>
+        <div class="form-row">
+          <label>⏱️ 缓存时间（分钟）</label>
+          <input type="number" id="s-cache-ttl" min="5" max="1440"/>
+        </div>
+        <div class="form-row">
+          <label>📰 每源最多条数</label>
+          <input type="number" id="s-items-per-feed" min="5" max="50"/>
+        </div>
+        <div class="form-row">
+          <label>🔑 管理密码</label>
+          <input type="password" id="s-admin-pwd" placeholder="留空则不修改"/>
+        </div>
+        <div class="form-row">
+          <label>🤖 DeepSeek 模型</label>
+          <select id="s-deepseek-model">
+            <option value="deepseek-chat">deepseek-chat（V3，推荐）</option>
+            <option value="deepseek-reasoner">deepseek-reasoner（R1，深度推理）</option>
+          </select>
+        </div>
+      </div>
+      <div style="display:flex;gap:12px;margin-top:8px">
+        <label style="display:flex;align-items:center;gap:8px;cursor:pointer;font-size:13px">
+          <input type="checkbox" id="s-translate-enabled"/>
+          自动翻译英文文章（加载时翻译）
+        </label>
+        <label style="display:flex;align-items:center;gap:8px;cursor:pointer;font-size:13px">
+          <input type="checkbox" id="s-ai-summary-enabled"/>
+          启用 AI 摘要功能
+        </label>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── Status panel ── -->
+  <div class="panel" id="panel-status">
+    <div class="card">
+      <div class="card-header">
+        <div><div class="card-title">📊 系统状态</div><div class="card-sub">缓存、信息源、翻译接口实时状态</div></div>
+        <button class="btn btn-ghost btn-sm" onclick="loadStatus()">🔄 刷新</button>
+      </div>
+      <div id="status-content" style="color:var(--muted);font-size:13px;padding:12px 0">加载中…</div>
+    </div>
+  </div>
+  <!-- ── Theme panel ── -->
+  <div class="panel" id="panel-theme">
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px">
+
+      <!-- Colors -->
+      <div class="card">
+        <div class="card-header">
+          <div><div class="card-title">🎨 马卡龙配色</div><div class="card-sub">点击色块直接修改</div></div>
+          <button class="btn btn-ghost btn-sm" id="btn-reset-theme">恢复默认</button>
+        </div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+          <div class="form-row">
+            <label>主色（按钮/链接）</label>
+            <div style="display:flex;align-items:center;gap:8px">
+              <input type="color" id="t-primary" style="width:42px;height:34px;border:none;border-radius:8px;cursor:pointer;padding:2px"/>
+              <input type="text"  id="t-primary-hex" style="flex:1;font-family:monospace;font-size:12px" placeholder="#FF6BAC"/>
+            </div>
+          </div>
+          <div class="form-row">
+            <label>薄荷绿（学术）</label>
+            <div style="display:flex;align-items:center;gap:8px">
+              <input type="color" id="t-mint" style="width:42px;height:34px;border:none;border-radius:8px;cursor:pointer;padding:2px"/>
+              <input type="text"  id="t-mint-hex" style="flex:1;font-family:monospace;font-size:12px"/>
+            </div>
+          </div>
+          <div class="form-row">
+            <label>天蓝（英语）</label>
+            <div style="display:flex;align-items:center;gap:8px">
+              <input type="color" id="t-sky" style="width:42px;height:34px;border:none;border-radius:8px;cursor:pointer;padding:2px"/>
+              <input type="text"  id="t-sky-hex" style="flex:1;font-family:monospace;font-size:12px"/>
+            </div>
+          </div>
+          <div class="form-row">
+            <label>柠檬黄（少年）</label>
+            <div style="display:flex;align-items:center;gap:8px">
+              <input type="color" id="t-lemon" style="width:42px;height:34px;border:none;border-radius:8px;cursor:pointer;padding:2px"/>
+              <input type="text"  id="t-lemon-hex" style="flex:1;font-family:monospace;font-size:12px"/>
+            </div>
+          </div>
+          <div class="form-row">
+            <label>薰衣草（AI）</label>
+            <div style="display:flex;align-items:center;gap:8px">
+              <input type="color" id="t-lavender" style="width:42px;height:34px;border:none;border-radius:8px;cursor:pointer;padding:2px"/>
+              <input type="text"  id="t-lavender-hex" style="flex:1;font-family:monospace;font-size:12px"/>
+            </div>
+          </div>
+          <div class="form-row">
+            <label>蜜桃橙（热榜）</label>
+            <div style="display:flex;align-items:center;gap:8px">
+              <input type="color" id="t-peach" style="width:42px;height:34px;border:none;border-radius:8px;cursor:pointer;padding:2px"/>
+              <input type="text"  id="t-peach-hex" style="flex:1;font-family:monospace;font-size:12px"/>
+            </div>
+          </div>
+          <div class="form-row">
+            <label>页面背景色</label>
+            <div style="display:flex;align-items:center;gap:8px">
+              <input type="color" id="t-bg" style="width:42px;height:34px;border:none;border-radius:8px;cursor:pointer;padding:2px"/>
+              <input type="text"  id="t-bg-hex" style="flex:1;font-family:monospace;font-size:12px"/>
+            </div>
+          </div>
+          <div class="form-row">
+            <label>正文文字色</label>
+            <div style="display:flex;align-items:center;gap:8px">
+              <input type="color" id="t-text" style="width:42px;height:34px;border:none;border-radius:8px;cursor:pointer;padding:2px"/>
+              <input type="text"  id="t-text-hex" style="flex:1;font-family:monospace;font-size:12px"/>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Layout & typography -->
+      <div style="display:flex;flex-direction:column;gap:16px">
+        <div class="card">
+          <div class="card-header"><div class="card-title">📐 布局</div></div>
+          <div class="form-row">
+            <label>卡片圆角 <span id="lbl-radius" style="color:var(--primary);font-weight:700"></span>px</label>
+            <input type="range" id="t-radius" min="0" max="28" step="1" style="width:100%;accent-color:var(--primary)"/>
+          </div>
+          <div class="form-row">
+            <label>卡片间距 <span id="lbl-gap" style="color:var(--primary);font-weight:700"></span>px</label>
+            <input type="range" id="t-gap" min="8" max="32" step="2" style="width:100%;accent-color:var(--primary)"/>
+          </div>
+          <div class="form-row">
+            <label>侧栏宽度 <span id="lbl-sidebar" style="color:var(--primary);font-weight:700"></span>px</label>
+            <input type="range" id="t-sidebar" min="160" max="280" step="10" style="width:100%;accent-color:var(--primary)"/>
+          </div>
+          <div class="form-row">
+            <label>阴影强度 <span id="lbl-shadow" style="color:var(--primary);font-weight:700"></span></label>
+            <input type="range" id="t-shadow" min="0" max="40" step="2" style="width:100%;accent-color:var(--primary)"/>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-header"><div class="card-title">🔤 字体</div></div>
+          <div class="form-row">
+            <label>卡片标题字号 <span id="lbl-title-size" style="color:var(--primary);font-weight:700"></span>px</label>
+            <input type="range" id="t-title-size" min="12" max="20" step="1" style="width:100%;accent-color:var(--primary)"/>
+          </div>
+          <div class="form-row">
+            <label>正文字号 <span id="lbl-body-size" style="color:var(--primary);font-weight:700"></span>px</label>
+            <input type="range" id="t-body-size" min="12" max="18" step="1" style="width:100%;accent-color:var(--primary)"/>
+          </div>
+          <div class="form-row">
+            <label>顶栏高度 <span id="lbl-topbar" style="color:var(--primary);font-weight:700"></span>px</label>
+            <input type="range" id="t-topbar" min="44" max="72" step="2" style="width:100%;accent-color:var(--primary)"/>
+          </div>
+        </div>
+
+        <!-- Preview strip -->
+        <div class="card" id="theme-preview">
+          <div class="card-header"><div class="card-title">👁️ 预览效果</div></div>
+          <div id="preview-card" style="border-radius:var(--r,14px);border:1.5px solid var(--border2);padding:14px;margin-top:4px">
+            <div style="display:flex;gap:6px;margin-bottom:8px">
+              <span id="prev-pill" style="padding:2px 10px;border-radius:999px;font-size:11px;font-weight:600;background:var(--sky-soft);color:var(--sky)">eSchool News</span>
+              <span style="font-size:11px;color:var(--text-muted);margin-left:auto">3分钟前</span>
+            </div>
+            <div id="prev-title" style="font-weight:700;margin-bottom:5px;color:var(--text)">如何帮助孩子爱上英语学习</div>
+            <div style="font-size:12px;color:var(--text-sub)">研究显示，游戏化学习方式能显著提升儿童英语学习兴趣和记忆效果…</div>
+            <div style="display:flex;gap:6px;margin-top:10px">
+              <span style="padding:4px 10px;border-radius:999px;font-size:11px;font-weight:600;background:var(--sky-bg);color:var(--sky);border:1.5px solid var(--sky-soft)">原文阅读</span>
+              <span style="padding:4px 10px;border-radius:999px;font-size:11px;font-weight:600;background:var(--lavender-bg);color:var(--lavender);border:1.5px solid var(--lavender-soft)">AI摘要</span>
+            </div>
+          </div>
+        </div>
+
+        <div style="display:flex;gap:8px;justify-content:flex-end">
+          <button class="btn btn-ghost" id="btn-cancel-theme">取消更改</button>
+          <button class="btn btn-primary" id="btn-save-theme">💾 保存并应用到前台</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</main>
+
+<!-- Source modal -->
+<div class="modal-overlay hidden" id="source-modal">
+  <div class="modal">
+    <div class="modal-header">
+      <span class="modal-title" id="source-modal-title">添加信息源</span>
+      <button class="modal-close" onclick="closeSourceModal()">×</button>
+    </div>
+    <div class="modal-body">
+      <div class="form-row"><label>名称 *</label><input id="src-name" placeholder="例：eSchool News"/></div>
+      <div class="form-row"><label>RSS URL *</label><input id="src-url" placeholder="https://…/feed/"/></div>
+      <div class="form-grid">
+        <div class="form-row">
+          <label>分类</label>
+          <select id="src-cat">
+            <option value="english_learning">🗣️ 英语学习</option>
+            <option value="youth_achievement">🏆 少年成就</option>
+            <option value="academic_family">🔬 学术&家庭</option>
+          </select>
+        </div>
+        <div class="form-row">
+          <label>语言</label>
+          <select id="src-lang"><option value="en">English</option><option value="zh">中文</option></select>
+        </div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-ghost btn-sm" onclick="closeSourceModal()">取消</button>
+      <button class="btn btn-primary btn-sm" id="source-modal-save">保存</button>
+    </div>
+  </div>
+</div>
+
+<script>
+/* ── Auth ── */
+let TOKEN = sessionStorage.getItem('edu-admin-token');
+
+document.getElementById('login-btn').addEventListener('click', async () => {
+  const pwd = document.getElementById('login-pwd').value;
+  const err = document.getElementById('login-err');
+  err.textContent = '';
+  try {
+    const r = await fetch('/api/admin/login', {
+      method:'POST', headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({ password: pwd }),
+    });
+    const j = await r.json();
+    if (!j.ok) { err.textContent = j.error; return; }
+    TOKEN = j.token;
+    sessionStorage.setItem('edu-admin-token', TOKEN);
+    showAdmin();
+  } catch(e) { err.textContent = e.message; }
+});
+document.getElementById('login-pwd').addEventListener('keydown', e => {
+  if (e.key === 'Enter') document.getElementById('login-btn').click();
+});
+if (TOKEN) showAdmin();
+
+function showAdmin() {
+  document.getElementById('login-overlay').classList.add('hidden');
+  document.getElementById('admin-shell').style.display = 'flex';
+  document.getElementById('admin-sidebar').style.display = 'block';
+  document.getElementById('admin-main').style.display = 'block';
+  loadSources(); loadSettings(); loadStatus();
+}
+
+function authHeaders() {
+  return { 'Content-Type':'application/json', 'x-admin-token': TOKEN };
+}
+
+/* 统一处理失效会话：401 时清 token 并回到登录页 */
+function forceLogin() {
+  sessionStorage.removeItem('edu-admin-token');
+  TOKEN = null;
+  document.getElementById('login-overlay').classList.remove('hidden');
+  const err = document.getElementById('login-err');
+  if (err) err.textContent = '会话已过期，请重新登录';
+}
+async function apiFetch(url, opts = {}) {
+  const r = await fetch(url, { ...opts, headers: { ...authHeaders(), ...(opts.headers||{}) } });
+  if (r.status === 401) { forceLogin(); throw new Error('未授权'); }
+  return r;
+}
+
+/* ── Panel nav ── */
+document.querySelectorAll('.nav-item[data-panel]').forEach(item => {
+  item.addEventListener('click', () => {
+    document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+    document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+    item.classList.add('active');
+    document.getElementById('panel-' + item.dataset.panel).classList.add('active');
+    // 切换面板时实时刷新数据
+    if (item.dataset.panel === 'status')   loadStatus();
+    if (item.dataset.panel === 'sources')  loadSources();
+    if (item.dataset.panel === 'settings') loadSettings();
+  });
+});
+
+/* ── Toast ── */
+function toast(msg) {
+  const el = document.createElement('div');
+  el.className = 'toast'; el.textContent = msg;
+  document.body.appendChild(el);
+  setTimeout(() => el.remove(), 2500);
+}
+
+/* ── Sources ── */
+let sources = [];
+let editingId = null;
+
+async function loadSources() {
+  try {
+    const r = await apiFetch('/api/admin/sources');
+    const j = await r.json();
+    sources = j.data ?? [];
+    renderSources();
+  } catch(e) { /* 401 已处理 */ }
+}
+
+const CAT_LABELS = {
+  english_learning: '英语学习',
+  youth_achievement: '少年成就',
+  academic_family: '学术&家庭',
+};
+
+function renderSources() {
+  const tbody = document.getElementById('source-tbody');
+  if (!sources.length) {
+    tbody.innerHTML = '<tr><td colspan="5" style="text-align:center;padding:24px;color:var(--muted)">暂无信息源</td></tr>';
+    return;
+  }
+  tbody.innerHTML = sources.map(s => `
+    <tr>
+      <td style="font-weight:600;max-width:200px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title="${s.url}">${s.name}</td>
+      <td><span class="cat-pill cat-${s.category}">${CAT_LABELS[s.category]??s.category}</span></td>
+      <td><span style="background:var(--surface2);padding:2px 8px;border-radius:999px;font-size:11px;font-weight:600">${s.lang==='zh'?'中文':'EN'}</span></td>
+      <td>
+        <div class="toggle-switch ${s.active?'on':''}" onclick="toggleSource('${s.id}',${!s.active})"></div>
+      </td>
+      <td style="display:flex;gap:6px">
+        <button class="btn btn-ghost btn-sm" onclick="editSource('${s.id}')">编辑</button>
+        <button class="btn btn-danger btn-sm" onclick="deleteSource('${s.id}')">删除</button>
+      </td>
+    </tr>`).join('');
+}
+
+async function toggleSource(id, active) {
+  await fetch(`/api/admin/sources/${id}`, {
+    method:'PUT', headers: authHeaders(), body: JSON.stringify({ active }),
+  });
+  await loadSources();
+}
+
+async function deleteSource(id) {
+  if (!confirm('确定删除这个信息源？')) return;
+  await fetch(`/api/admin/sources/${id}`, { method:'DELETE', headers: authHeaders() });
+  await loadSources();
+  toast('✅ 已删除');
+}
+
+function editSource(id) {
+  const src = sources.find(s => s.id === id);
+  if (!src) return;
+  editingId = id;
+  document.getElementById('source-modal-title').textContent = '编辑信息源';
+  document.getElementById('src-name').value = src.name;
+  document.getElementById('src-url').value  = src.url;
+  document.getElementById('src-cat').value  = src.category;
+  document.getElementById('src-lang').value = src.lang;
+  document.getElementById('source-modal').classList.remove('hidden');
+}
+
+document.getElementById('btn-add-source').addEventListener('click', () => {
+  editingId = null;
+  document.getElementById('source-modal-title').textContent = '添加信息源';
+  ['src-name','src-url'].forEach(id => document.getElementById(id).value = '');
+  document.getElementById('source-modal').classList.remove('hidden');
+});
+
+document.getElementById('source-modal-save').addEventListener('click', async () => {
+  const name = document.getElementById('src-name').value.trim();
+  const url  = document.getElementById('src-url').value.trim();
+  if (!name || !url) { toast('⚠️ 名称和 URL 不能为空'); return; }
+  const body = {
+    name, url,
+    category: document.getElementById('src-cat').value,
+    lang:     document.getElementById('src-lang').value,
+  };
+  if (editingId) {
+    await fetch(`/api/admin/sources/${editingId}`, {
+      method:'PUT', headers: authHeaders(), body: JSON.stringify(body),
+    });
+  } else {
+    await fetch('/api/admin/sources', {
+      method:'POST', headers: authHeaders(), body: JSON.stringify(body),
+    });
+  }
+  closeSourceModal();
+  await loadSources();
+  toast(editingId ? '✅ 已更新' : '✅ 已添加');
+});
+
+function closeSourceModal() {
+  document.getElementById('source-modal').classList.add('hidden');
+  editingId = null;
+}
+window.closeSourceModal = closeSourceModal;
+window.editSource = editSource;
+window.deleteSource = deleteSource;
+window.toggleSource = toggleSource;
+
+/* ── Settings ── */
+async function loadSettings() {
+  let j;
+  try {
+    const r = await apiFetch('/api/admin/settings');
+    j = await r.json();
+  } catch(e) { return; }
+  const s = j.data ?? {};
+  document.getElementById('s-deepseek-key').value = s.deepseekApiKey ?? '';
+  document.getElementById('s-cache-ttl').value = Math.round((s.cacheTTL ?? 900000) / 60000);
+  document.getElementById('s-items-per-feed').value = s.itemsPerFeed ?? 10;
+  document.getElementById('s-deepseek-model').value = s.deepseekModel ?? 'deepseek-chat';
+  document.getElementById('s-translate-enabled').checked = s.translateEnabled !== false;
+  document.getElementById('s-ai-summary-enabled').checked = s.aiSummaryEnabled !== false;
+  renderTranslateApis();
+}
+
+/* 渲染翻译接口链（只读展示，从状态接口取） */
+async function renderTranslateApis() {
+  const box = document.getElementById('s-translate-apis');
+  if (!box) return;
+  try {
+    const r = await apiFetch('/api/admin/status');
+    const d = (await r.json()).data ?? {};
+    const apis = d.translateApis ?? [];
+    box.innerHTML = apis.map((api, i) => `
+      <span style="display:inline-flex;align-items:center;gap:5px;padding:3px 9px;background:#fff;border:1.5px solid var(--mint-soft);border-radius:999px;font-size:11px;font-weight:600;color:var(--text)">
+        <span style="background:var(--mint);color:#fff;border-radius:50%;width:15px;height:15px;display:inline-flex;align-items:center;justify-content:center;font-size:9px">${i+1}</span>${api}
+      </span>`).join('');
+  } catch(e) { /* 401 已处理 */ }
+}
+
+document.getElementById('btn-save-settings').addEventListener('click', async () => {
+  const pwd = document.getElementById('s-admin-pwd').value;
+  const body = {
+    deepseekApiKey:  document.getElementById('s-deepseek-key').value.trim(),
+    cacheTTL:        parseInt(document.getElementById('s-cache-ttl').value) * 60000,
+    itemsPerFeed:    parseInt(document.getElementById('s-items-per-feed').value),
+    deepseekModel:   document.getElementById('s-deepseek-model').value,
+    translateEnabled:  document.getElementById('s-translate-enabled').checked,
+    aiSummaryEnabled:  document.getElementById('s-ai-summary-enabled').checked,
+  };
+  if (pwd) body.adminPassword = pwd;
+  await fetch('/api/admin/settings', {
+    method:'PUT', headers: authHeaders(), body: JSON.stringify(body),
+  });
+  toast('✅ 设置已保存');
+});
+
+/* ── Status ── */
+async function loadStatus() {
+  let j;
+  try {
+    const r = await apiFetch('/api/admin/status');
+    j = await r.json();
+  } catch(e) { return; }
+  const d = j.data ?? {};
+  const el = document.getElementById('status-content');
+  if (!el) return;
+
+  const CAT = { english_learning:'英语学习', youth_achievement:'少年成就', academic_family:'学术&家庭' };
+  const storeRows = Object.entries(d.store ?? {}).map(([k, v]) =>
+    `<tr><td>${CAT[k]??k}</td><td>${v.today} 条今天</td><td>${v.total} 条存储</td></tr>`).join('');
+  const loadedRows = d.newsLoaded ? Object.entries(d.newsLoaded).map(([k,v]) =>
+    `<tr><td>${CAT[k]??k}</td><td>${v} 条</td></tr>`).join('') : '<tr><td colspan="2">缓存未加载，请刷新前台</td></tr>';
+
+  el.innerHTML = `
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:16px">
+    <div style="background:var(--mint-bg);border:1.5px solid var(--mint-soft);border-radius:10px;padding:14px">
+      <div style="font-size:11px;color:var(--sub);margin-bottom:4px">缓存状态</div>
+      <div style="font-weight:700;color:var(--mint)">${d.cacheValid ? '✅ 有效' : '⏳ 已过期'}</div>
+      <div style="font-size:11px;color:var(--muted);margin-top:4px">${d.cacheAge != null ? `${d.cacheAge} 分钟前更新 / TTL ${d.cacheTTL} 分钟` : '未缓存'}</div>
+    </div>
+    <div style="background:var(--sky-bg);border:1.5px solid var(--sky-soft);border-radius:10px;padding:14px">
+      <div style="font-size:11px;color:var(--sub);margin-bottom:4px">信息源</div>
+      <div style="font-weight:700;color:var(--sky)">${d.sourcesActive} / ${d.sourcesTotal} 个启用</div>
+      <div style="font-size:11px;color:var(--muted);margin-top:4px">AI ${d.aiEnabled ? '✅ 已配置' : '❌ 未配置 Key'}</div>
+    </div>
+  </div>
+  <div style="font-size:12px;font-weight:700;color:var(--sub);margin-bottom:8px">当前显示条数</div>
+  <table style="width:100%;font-size:12px;border-collapse:collapse;margin-bottom:16px">
+    <thead><tr style="color:var(--muted)">${Object.values(CAT).map(v=>`<th style="text-align:left;padding:4px 6px">${v}</th>`).join('')}</tr></thead>
+    <tbody><tr>${Object.values(d.newsLoaded ?? {english_learning:0,youth_achievement:0,academic_family:0}).map(v=>`<td style="padding:4px 6px;font-weight:700">${v} 条</td>`).join('')}</tr></tbody>
+  </table>
+  <div style="font-size:12px;font-weight:700;color:var(--sub);margin-bottom:8px">翻译接口链（自动按序兜底）</div>
+  <div style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:16px">
+    ${(d.translateApis??[]).map((api,i)=>`
+      <div style="display:flex;align-items:center;gap:6px;padding:5px 10px;background:var(--surface2);border:1.5px solid var(--border2);border-radius:999px;font-size:11px">
+        <span style="background:var(--primary);color:#fff;border-radius:50%;width:16px;height:16px;display:inline-flex;align-items:center;justify-content:center;font-size:9px;font-weight:700">${i+1}</span>
+        ${api}
+      </div>`).join('')}
+  </div>
+  <div style="font-size:11px;color:var(--muted)">服务器时间：${new Date(d.serverTime).toLocaleString('zh-CN')}</div>`;
+}
+window.loadStatus = loadStatus;
+
+/* ── Theme editor ── */
+const DEFAULTS = {
+  primaryColor:'#FF6BAC', mintColor:'#5CC8A0', skyColor:'#52B8E8',
+  lemonColor:'#F5C842', lavenderColor:'#9B7FD4', peachColor:'#FF8C5A',
+  bgColor:'#FFF8FC', textColor:'#2D1A2E',
+  cardRadius:14, sidebarWidth:220, cardTitleSize:15,
+  bodyFontSize:14, cardGap:16, shadowStrength:10, topbarHeight:56,
+};
+let themeState = { ...DEFAULTS };
+let themeOriginal = { ...DEFAULTS };
+
+const COLOR_FIELDS = [
+  ['t-primary',  'primaryColor'],
+  ['t-mint',     'mintColor'],
+  ['t-sky',      'skyColor'],
+  ['t-lemon',    'lemonColor'],
+  ['t-lavender', 'lavenderColor'],
+  ['t-peach',    'peachColor'],
+  ['t-bg',       'bgColor'],
+  ['t-text',     'textColor'],
+];
+const RANGE_FIELDS = [
+  ['t-radius',     'cardRadius',    'lbl-radius'],
+  ['t-gap',        'cardGap',       'lbl-gap'],
+  ['t-sidebar',    'sidebarWidth',  'lbl-sidebar'],
+  ['t-shadow',     'shadowStrength','lbl-shadow'],
+  ['t-title-size', 'cardTitleSize', 'lbl-title-size'],
+  ['t-body-size',  'bodyFontSize',  'lbl-body-size'],
+  ['t-topbar',     'topbarHeight',  'lbl-topbar'],
+];
+
+async function loadTheme() {
+  const r = await fetch('/api/theme');
+  const j = await r.json();
+  themeState = { ...DEFAULTS, ...j.data };
+  themeOriginal = { ...themeState };
+  applyThemeToForm();
+}
+
+function applyThemeToForm() {
+  COLOR_FIELDS.forEach(([id, key]) => {
+    const color = document.getElementById(id);
+    const hex   = document.getElementById(id + '-hex');
+    if (color) color.value = themeState[key] ?? DEFAULTS[key];
+    if (hex)   hex.value   = themeState[key] ?? DEFAULTS[key];
+  });
+  RANGE_FIELDS.forEach(([id, key, lbl]) => {
+    const el = document.getElementById(id);
+    const lb = document.getElementById(lbl);
+    if (el) el.value = themeState[key] ?? DEFAULTS[key];
+    if (lb) lb.textContent = themeState[key] ?? DEFAULTS[key];
+  });
+  applyPreview();
+}
+
+function applyPreview() {
+  const root = document.documentElement;
+  root.style.setProperty('--primary',      themeState.primaryColor);
+  root.style.setProperty('--primary-bg',   themeState.primaryColor + '18');
+  root.style.setProperty('--mint',         themeState.mintColor);
+  root.style.setProperty('--sky',          themeState.skyColor);
+  root.style.setProperty('--sky-soft',     themeState.skyColor + '40');
+  root.style.setProperty('--sky-bg',       themeState.skyColor + '18');
+  root.style.setProperty('--lemon',        themeState.lemonColor);
+  root.style.setProperty('--lavender',     themeState.lavenderColor);
+  root.style.setProperty('--lavender-soft',themeState.lavenderColor + '40');
+  root.style.setProperty('--lavender-bg',  themeState.lavenderColor + '18');
+  root.style.setProperty('--peach',        themeState.peachColor);
+  root.style.setProperty('--bg',           themeState.bgColor);
+  root.style.setProperty('--text',         themeState.textColor);
+  root.style.setProperty('--r',            themeState.cardRadius + 'px');
+  // update preview card
+  const prevTitle = document.getElementById('prev-title');
+  if (prevTitle) {
+    prevTitle.style.fontSize = themeState.cardTitleSize + 'px';
+    prevTitle.style.color    = themeState.textColor;
+  }
+  const prevCard = document.getElementById('preview-card');
+  if (prevCard) prevCard.style.borderRadius = themeState.cardRadius + 'px';
+}
+
+// Wire color pickers
+COLOR_FIELDS.forEach(([id, key]) => {
+  const color = document.getElementById(id);
+  const hex   = document.getElementById(id + '-hex');
+  if (color) color.addEventListener('input', e => {
+    themeState[key] = e.target.value;
+    if (hex) hex.value = e.target.value;
+    applyPreview();
+  });
+  if (hex) hex.addEventListener('input', e => {
+    const val = e.target.value.trim();
+    if (/^#[0-9a-fA-F]{6}$/.test(val)) {
+      themeState[key] = val;
+      if (color) color.value = val;
+      applyPreview();
+    }
+  });
+});
+
+// Wire range sliders
+RANGE_FIELDS.forEach(([id, key, lbl]) => {
+  const el = document.getElementById(id);
+  const lb = document.getElementById(lbl);
+  if (el) el.addEventListener('input', e => {
+    themeState[key] = parseInt(e.target.value);
+    if (lb) lb.textContent = e.target.value;
+    applyPreview();
+  });
+});
+
+document.getElementById('btn-save-theme').addEventListener('click', async () => {
+  await fetch('/api/theme', {
+    method: 'PUT', headers: authHeaders(),
+    body: JSON.stringify(themeState),
+  });
+  themeOriginal = { ...themeState };
+  toast('✅ 外观已保存，前台刷新后生效');
+});
+
+document.getElementById('btn-cancel-theme').addEventListener('click', () => {
+  themeState = { ...themeOriginal };
+  applyThemeToForm();
+  toast('↩️ 已恢复上次保存的配置');
+});
+
+document.getElementById('btn-reset-theme').addEventListener('click', () => {
+  themeState = { ...DEFAULTS };
+  applyThemeToForm();
+  toast('🔄 已恢复默认马卡龙配色');
+});
+
+// Load theme when entering panel
+document.querySelectorAll('.nav-item[data-panel]').forEach(item => {
+  if (item.dataset.panel === 'theme') {
+    item.addEventListener('click', loadTheme, { once: false });
+  }
+});
+
+</script>
+</body>
+</html>

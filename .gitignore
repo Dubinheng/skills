@@ -1,0 +1,14 @@
+node_modules/
+.DS_Store
+*.log
+resume-logs/
+.env
+.env.local
+*.secret
+*.key
+edu-news-platform/data/
+
+# Claude Code 本地配置（含个人路径和权限，不推送）
+.claude/settings.local.json
+.claude/launch.json
+edu-news-platform/.claude/

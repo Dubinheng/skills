@@ -1,0 +1,1066 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+  <title>杜斌衡 · 简历</title>
+  <style>
+    :root {
+      --bg:     #080810;
+      --glass:  rgba(255,255,255,0.05);
+      --glass2: rgba(255,255,255,0.08);
+      --border: rgba(255,255,255,0.10);
+      --border2:rgba(255,255,255,0.16);
+      --text:   #F0EEFF;
+      --sub:    rgba(240,238,255,0.60);
+      --muted:  rgba(240,238,255,0.35);
+      --p1: #A855F7;   /* purple */
+      --p2: #EC4899;   /* pink   */
+      --p3: #F97316;   /* orange */
+      --font: Inter,"PingFang SC","Microsoft YaHei",system-ui,sans-serif;
+      --font-mono:"JetBrains Mono","Fira Code",monospace;
+    }
+
+    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+    html{scroll-behavior:smooth}
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: var(--font);
+      font-size: 15px;
+      line-height: 1.75;
+      overflow-x: hidden;
+    }
+
+    /* ── Gradient mesh background ── */
+    body::before {
+      content:'';
+      position:fixed;
+      inset:0;
+      background:
+        radial-gradient(ellipse 80% 60% at 10% 0%, rgba(139,92,246,0.18) 0%, transparent 60%),
+        radial-gradient(ellipse 60% 50% at 90% 10%, rgba(236,72,153,0.12) 0%, transparent 55%),
+        radial-gradient(ellipse 70% 60% at 80% 90%, rgba(249,115,22,0.12) 0%, transparent 55%),
+        radial-gradient(ellipse 50% 40% at 20% 80%, rgba(99,102,241,0.10) 0%, transparent 50%);
+      pointer-events:none;
+      z-index:0;
+    }
+
+    /* ── Floating orbs ── */
+    .orb {
+      position:fixed;
+      border-radius:50%;
+      filter:blur(80px);
+      pointer-events:none;
+      z-index:0;
+      animation: drift 18s ease-in-out infinite alternate;
+    }
+    .orb1{width:400px;height:400px;background:rgba(139,92,246,0.12);top:-100px;left:-100px;animation-duration:20s}
+    .orb2{width:300px;height:300px;background:rgba(249,115,22,0.10);bottom:-80px;right:-80px;animation-duration:15s;animation-delay:-7s}
+    .orb3{width:250px;height:250px;background:rgba(236,72,153,0.08);top:40%;left:60%;animation-duration:25s;animation-delay:-12s}
+
+    @keyframes drift{
+      from{transform:translate(0,0) scale(1)}
+      to{transform:translate(40px,30px) scale(1.08)}
+    }
+
+    /* ── Page ── */
+    .page {
+      position:relative;z-index:1;
+      max-width:860px;
+      margin:0 auto;
+      padding:60px 24px 100px;
+    }
+
+    /* ── Glass card ── */
+    .glass {
+      background: var(--glass);
+      backdrop-filter: blur(24px);
+      -webkit-backdrop-filter: blur(24px);
+      border: 1px solid var(--border);
+      border-radius: 24px;
+    }
+
+    /* ── HERO ── */
+    .hero {
+      padding: 56px 56px 48px;
+      margin-bottom: 20px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .hero::before {
+      content:'';
+      position:absolute;
+      inset:0;
+      background: linear-gradient(135deg, rgba(139,92,246,0.08) 0%, rgba(249,115,22,0.05) 100%);
+      border-radius:inherit;
+    }
+
+    .hero-inner { position:relative; z-index:1; display:flex; gap:48px; align-items:center; }
+
+    /* ── Hero 左侧文字区 ── */
+    .hero-left { flex:1; display:flex; flex-direction:column; justify-content:center; gap:0; }
+
+    .hero-badge {
+      display:inline-block;
+      font-family:var(--font-mono);
+      font-size:11px;
+      letter-spacing:.12em;
+      text-transform:uppercase;
+      color: var(--p1);
+      background: rgba(168,85,247,0.12);
+      border: 1px solid rgba(168,85,247,0.25);
+      border-radius:999px;
+      padding:4px 14px;
+      margin-bottom:16px;
+      width:fit-content;
+    }
+
+    .hero-name {
+      font-size: 56px;
+      font-weight: 800;
+      letter-spacing: -0.04em;
+      line-height: 1;
+      margin-bottom: 12px;
+      background: linear-gradient(135deg, #F0EEFF 0%, var(--p1) 40%, var(--p3) 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    .hero-typed {
+      font-size:15px;
+      color: var(--sub);
+      min-height:22px;
+      margin-bottom:20px;
+    }
+
+    .cursor {
+      display:inline-block;
+      width:2px;height:.9em;
+      background: linear-gradient(to bottom, var(--p1), var(--p3));
+      margin-left:2px;
+      vertical-align:middle;
+      animation:blink 1s step-end infinite;
+    }
+    @keyframes blink{50%{opacity:0}}
+
+    /* 分割线 */
+    .hero-divider{ width:100%; height:1px; background:rgba(255,255,255,.08); margin-bottom:18px; }
+
+    /* meta 三列 */
+    .hero-meta-row{ display:flex; gap:28px; flex-wrap:wrap; margin-bottom:16px; }
+    .hero-meta-item{ display:flex; align-items:center; gap:6px; font-size:12px; color:var(--sub); }
+    .hero-meta-item svg{ width:13px; height:13px; opacity:.5; flex-shrink:0; }
+
+    /* 意向标签 */
+    .intent-tags{display:flex;flex-wrap:wrap;gap:7px;margin-bottom:18px}
+    .itag {
+      font-size:11px;font-weight:500;
+      border-radius:999px;padding:4px 12px;
+      border:1px solid rgba(255,255,255,0.12);
+      color:var(--text);
+    }
+    .itag:nth-child(1){background:rgba(168,85,247,0.15);border-color:rgba(168,85,247,0.3)}
+    .itag:nth-child(2){background:rgba(249,115,22,0.12);border-color:rgba(249,115,22,0.25)}
+    .itag:nth-child(3){background:rgba(236,72,153,0.12);border-color:rgba(236,72,153,0.25)}
+    .itag:nth-child(n+4){background:rgba(255,255,255,0.06)}
+
+    /* 联系方式 */
+    .hero-contacts { display:flex; flex-wrap:wrap; gap:8px 20px; }
+    .contact-item {
+      display:flex;align-items:center;gap:6px;
+      font-size:12px;color:var(--sub);
+      text-decoration:none;
+      transition:color .18s;
+    }
+    .contact-item:hover{color:var(--text)}
+    .contact-item svg{width:13px;height:13px;opacity:.5}
+
+    /* ── Hero 右侧头像 3:4 ── */
+    .hero-avatar {
+      width:156px;
+      height:208px;
+      flex-shrink:0;
+      border-radius:16px;
+      background:linear-gradient(160deg,rgba(168,85,247,.18),rgba(249,115,22,.12));
+      border:1px solid rgba(168,85,247,.25);
+      overflow:hidden;
+      display:flex;align-items:center;justify-content:center;
+      font-size:52px;
+      box-shadow:0 8px 32px rgba(0,0,0,.35), 0 0 0 1px rgba(255,255,255,.05);
+    }
+    .hero-avatar img{width:100%;height:100%;object-fit:cover;object-position:center top;}
+
+    /* ── Section ── */
+    .section {
+      padding:36px 44px;
+      margin-bottom:20px;
+      opacity:0;
+      transform:translateY(28px);
+      transition:opacity .6s ease, transform .6s ease;
+    }
+    .section.visible{opacity:1;transform:translateY(0)}
+
+    .sec-header {
+      display:flex;align-items:center;gap:12px;
+      margin-bottom:32px;
+    }
+    .sec-icon {
+      width:34px;height:34px;border-radius:10px;
+      display:flex;align-items:center;justify-content:center;
+      background:linear-gradient(135deg,rgba(168,85,247,0.2),rgba(249,115,22,0.15));
+      border:1px solid rgba(255,255,255,0.1);
+      flex-shrink:0;
+    }
+    .sec-icon svg{width:16px;height:16px;color:var(--p1)}
+    .sec-title{
+      font-size:16px;font-weight:700;
+      background:linear-gradient(90deg,var(--text) 0%,var(--sub) 100%);
+      -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;
+    }
+    .sec-line{flex:1;height:1px;background:linear-gradient(90deg,rgba(255,255,255,0.1),transparent)}
+
+    /* ── About ── */
+    .about-text{font-size:14px;line-height:1.9;color:var(--sub)}
+    .about-text strong{color:var(--text);font-weight:600}
+
+    /* ── Stats ── */
+    .stats-row {
+      display:flex;flex-wrap:wrap;gap:14px;
+      margin-top:28px;
+    }
+    .stat-card {
+      flex:1;min-width:110px;
+      background:linear-gradient(135deg,rgba(168,85,247,0.10),rgba(249,115,22,0.07));
+      border:1px solid rgba(255,255,255,0.09);
+      border-radius:16px;
+      padding:18px 20px;
+      text-align:center;
+      transition:transform .2s, border-color .2s;
+      cursor:default;
+    }
+    .stat-card:hover{transform:translateY(-3px);border-color:rgba(168,85,247,0.3)}
+    .stat-val {
+      font-size:28px;font-weight:800;letter-spacing:-.03em;
+      background:linear-gradient(135deg,var(--p1),var(--p3));
+      -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;
+      display:block;line-height:1;margin-bottom:6px;
+    }
+    .stat-lbl{font-size:11px;color:var(--muted)}
+
+    /* ── Timeline ── */
+    .timeline{position:relative;padding-left:24px}
+    .timeline::before{
+      content:'';position:absolute;left:0;top:10px;bottom:10px;
+      width:1px;
+      background:linear-gradient(to bottom,transparent,rgba(168,85,247,0.4),rgba(249,115,22,0.3),transparent);
+    }
+
+    .tl-item{
+      position:relative;padding-bottom:40px;
+      opacity:0;transform:translateX(-8px);
+      transition:opacity .45s ease,transform .45s ease;
+    }
+    .tl-item.visible{opacity:1;transform:translateX(0)}
+    .tl-item:last-child{padding-bottom:0}
+
+    .tl-item::before{
+      content:'';position:absolute;left:-28px;top:10px;
+      width:10px;height:10px;border-radius:50%;
+      background:linear-gradient(135deg,var(--p1),var(--p2));
+      box-shadow:0 0 12px rgba(168,85,247,0.5);
+      transition:box-shadow .25s;
+    }
+    .tl-item:hover::before{box-shadow:0 0 20px rgba(168,85,247,0.8)}
+
+    .tl-top{display:flex;align-items:flex-start;justify-content:space-between;flex-wrap:wrap;gap:6px;margin-bottom:4px}
+    .tl-period{
+      font-family:var(--font-mono);font-size:11px;color:var(--muted);
+      letter-spacing:.05em;
+      background:rgba(255,255,255,0.05);
+      border:1px solid rgba(255,255,255,0.08);
+      border-radius:999px;padding:3px 11px;white-space:nowrap;
+    }
+    .tl-role{font-size:15px;font-weight:700;color:var(--text);margin-bottom:2px}
+    .tl-company{font-size:12px;color:var(--muted);margin-bottom:12px}
+
+    .tl-bullets{list-style:none;display:flex;flex-direction:column;gap:8px}
+    .tl-bullets li{
+      font-size:13.5px;color:var(--sub);line-height:1.7;
+      padding-left:16px;position:relative;
+    }
+    .tl-bullets li::before{
+      content:'';position:absolute;left:0;top:10px;
+      width:4px;height:4px;border-radius:50%;
+      background:linear-gradient(135deg,var(--p1),var(--p3));
+    }
+    .tl-bullets strong{color:var(--text);font-weight:600}
+    .tl-tags{display:flex;flex-wrap:wrap;gap:7px;margin-top:14px}
+
+    /* ── Tags ── */
+    .tag{
+      display:inline-block;font-size:11px;font-weight:500;
+      border-radius:999px;padding:3px 11px;
+      border:1px solid rgba(255,255,255,0.08);
+    }
+    .tag-gray  {color:var(--sub); background:rgba(255,255,255,0.04)}
+    .tag-red   {color:#F472B6;    background:rgba(244,114,182,0.10);border-color:rgba(244,114,182,0.2)}
+    .tag-blue  {color:#60A5FA;    background:rgba(96,165,250,0.10); border-color:rgba(96,165,250,0.2)}
+    .tag-green {color:#4ADE80;    background:rgba(74,222,128,0.10); border-color:rgba(74,222,128,0.2)}
+    .tag-orange{color:#FB923C;    background:rgba(251,146,60,0.10); border-color:rgba(251,146,60,0.2)}
+    .tag-purple{color:#C084FC;    background:rgba(192,132,252,0.10);border-color:rgba(192,132,252,0.2)}
+
+    /* ── Project cards ── */
+    .proj-grid{display:grid;gap:16px}
+    .proj-card {
+      background:rgba(255,255,255,0.04);
+      border:1px solid rgba(255,255,255,0.08);
+      border-radius:18px;padding:22px 26px;
+      transition:border-color .2s,background .2s,transform .2s;
+      position:relative;overflow:hidden;cursor:default;
+    }
+    .proj-card::before{
+      content:'';position:absolute;inset:0;
+      background:linear-gradient(135deg,rgba(168,85,247,0.04),rgba(249,115,22,0.03));
+      opacity:0;transition:opacity .2s;
+    }
+    .proj-card:hover{
+      border-color:rgba(168,85,247,0.3);
+      background:rgba(255,255,255,0.06);
+      transform:translateY(-3px);
+    }
+    .proj-card:hover::before{opacity:1}
+    .proj-inner{position:relative;z-index:1}
+    .proj-top{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;flex-wrap:wrap;margin-bottom:8px}
+    .proj-name{font-size:15px;font-weight:700;color:var(--text)}
+    .proj-desc{font-size:13px;color:var(--sub);line-height:1.75;margin-bottom:12px}
+
+    .demo-badge{
+      display:inline-flex;align-items:center;gap:6px;
+      font-size:11px;font-weight:500;
+      color:#C084FC;
+      background:rgba(192,132,252,0.12);
+      border:1px solid rgba(192,132,252,0.25);
+      border-radius:999px;padding:4px 13px;
+      white-space:nowrap;flex-shrink:0;cursor:default;
+    }
+    .demo-badge svg{width:11px;height:11px}
+
+    /* ── Skill Bubbles ── */
+    /* ── Knowledge Graph ── */
+    .graph-legend{display:flex;flex-wrap:wrap;gap:16px;margin-bottom:20px}
+    .legend-item{display:flex;align-items:center;gap:7px;font-size:12px;color:var(--sub)}
+    .legend-dot{width:9px;height:9px;border-radius:50%;flex-shrink:0}
+    .graph-outer{
+      position:relative;width:100%;height:560px;
+      border-radius:14px;overflow:hidden;
+      background:#090909;
+      box-shadow:inset 0 0 60px rgba(0,0,0,.6);
+    }
+    #graph-wrap{width:100%;height:100%;cursor:grab}
+    #graph-wrap:active{cursor:grabbing}
+    .graph-hint{
+      text-align:center;margin-top:14px;
+      font-size:11px;color:var(--muted);
+      font-family:var(--font-mono);
+      letter-spacing:.06em;
+    }
+    /* node detail popup */
+    .node-detail{
+      position:absolute;
+      background:rgba(10,8,22,0.92);
+      backdrop-filter:blur(24px);
+      border:1px solid rgba(255,255,255,0.1);
+      border-radius:14px;
+      padding:14px 18px;
+      min-width:180px;max-width:240px;
+      pointer-events:none;
+      opacity:0;transform:translateY(4px);
+      transition:opacity .18s,transform .18s;
+      z-index:20;
+    }
+    .node-detail.show{opacity:1;transform:translateY(0)}
+    .nd-cat{font-size:10px;font-weight:600;letter-spacing:.1em;margin-bottom:6px}
+    .nd-name{font-size:15px;font-weight:700;color:#fff;margin-bottom:5px}
+    .nd-desc{font-size:12px;color:rgba(255,255,255,.45);line-height:1.55}
+
+    /* ── Portfolio ── */
+    .portfolio-grid{
+      display:grid;
+      grid-template-columns:repeat(auto-fill,minmax(200px,1fr));
+      gap:14px;
+    }
+    .port-card{
+      position:relative;
+      border-radius:16px;
+      overflow:hidden;
+      border:1px solid rgba(255,255,255,0.08);
+      background:rgba(255,255,255,0.04);
+      aspect-ratio:16/10;
+      cursor:pointer;
+      transition:transform .22s, border-color .22s, box-shadow .22s;
+      text-decoration:none;
+      display:block;
+    }
+    .port-card:hover{
+      transform:translateY(-4px) scale(1.02);
+      border-color:rgba(168,85,247,0.4);
+      box-shadow:0 12px 40px rgba(168,85,247,0.2);
+    }
+    .port-thumb{
+      width:100%;height:100%;
+      object-fit:cover;
+      display:block;
+      opacity:.75;
+      transition:opacity .22s;
+    }
+    .port-card:hover .port-thumb{ opacity:1; }
+    /* placeholder bg when no image */
+    .port-thumb-placeholder{
+      width:100%;height:100%;
+      display:flex;align-items:center;justify-content:center;
+      font-size:32px;
+    }
+    .port-overlay{
+      position:absolute;inset:0;
+      background:linear-gradient(to top, rgba(8,8,16,.85) 0%, transparent 55%);
+      display:flex;flex-direction:column;justify-content:flex-end;
+      padding:14px;
+    }
+    .port-type-badge{
+      position:absolute;top:10px;left:10px;
+      font-size:10px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;
+      border-radius:999px;padding:3px 10px;
+      backdrop-filter:blur(8px);
+    }
+    .type-account {background:rgba(168,85,247,0.3);color:#D8B4FE;border:1px solid rgba(168,85,247,0.4)}
+    .type-video   {background:rgba(239,68,68,0.3); color:#FCA5A5;border:1px solid rgba(239,68,68,0.4)}
+    .type-workflow{background:rgba(34,211,238,0.25);color:#A5F3FC;border:1px solid rgba(34,211,238,0.35)}
+    .type-screenshot{background:rgba(249,115,22,0.25);color:#FED7AA;border:1px solid rgba(249,115,22,0.35)}
+    .port-play-btn{
+      position:absolute;top:50%;left:50%;
+      transform:translate(-50%,-50%);
+      width:38px;height:38px;border-radius:50%;
+      background:rgba(255,255,255,0.15);
+      backdrop-filter:blur(8px);
+      border:1px solid rgba(255,255,255,0.2);
+      display:flex;align-items:center;justify-content:center;
+      opacity:0;transition:opacity .2s;
+    }
+    .port-card:hover .port-play-btn{ opacity:1; }
+    .port-play-btn svg{width:14px;height:14px;color:#fff;margin-left:2px}
+    .port-title{font-size:12px;font-weight:600;color:#fff;margin-bottom:2px}
+    .port-meta{font-size:10px;color:rgba(255,255,255,0.5)}
+
+    /* ── Admin FAB ── */
+    .admin-fab{
+      position:fixed;bottom:28px;right:28px;
+      height:40px;border-radius:999px;
+      background:rgba(168,85,247,0.15);
+      backdrop-filter:blur(12px);
+      border:1px solid rgba(168,85,247,0.3);
+      color:rgba(255,255,255,0.6);
+      cursor:pointer;
+      display:flex;align-items:center;justify-content:center;gap:6px;
+      padding:0 16px;
+      font-size:12px;font-family:var(--font-mono);
+      box-shadow:0 4px 20px rgba(0,0,0,0.3);
+      transition:all .2s;
+      text-decoration:none;z-index:100;
+    }
+    .admin-fab:hover{
+      background:rgba(168,85,247,0.3);
+      border-color:rgba(168,85,247,0.6);
+      color:#fff;
+      transform:translateY(-2px);
+      box-shadow:0 6px 28px rgba(168,85,247,0.4);
+    }
+    .admin-fab svg{width:13px;height:13px;opacity:.7}
+
+    footer{
+      text-align:center;padding-top:40px;
+      font-size:12px;color:var(--muted);
+      font-family:var(--font-mono);
+    }
+
+    @media(max-width:640px){
+      .hero{padding:36px 28px}
+      .section{padding:28px 22px}
+      .hero-name{font-size:40px}
+      .skills-grid{grid-template-columns:1fr}
+    }
+  </style>
+  <script src="https://unpkg.com/force-graph@1.43.5/dist/force-graph.min.js"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;700&display=swap" rel="stylesheet"/>
+</head>
+<body>
+<div class="orb orb1"></div>
+<div class="orb orb2"></div>
+<div class="orb orb3"></div>
+
+<div class="page" id="resume-root"></div>
+
+<a class="admin-fab" href="/resume/admin.html" title="管理后台">
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+    <path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/>
+  </svg>
+  管理后台
+</a>
+
+<script>
+// ── Default data ──────────────────────────────────────────────
+const DEFAULT = {
+  personal:{
+    avatar:"",
+    badge:"新媒体运营 · AI应用",
+    name:"杜斌衡",
+    phone:"18225011525",
+    email:"405120279@qq.com",
+    location:"重庆 · 可远程",
+    birthday:"1997.9",
+    experience:"5年经验",
+    availability:"可立即入职",
+    intents:["跨境电商运营","新媒体运营","AI工具应用"]
+  },
+  about:{
+    p1:"<strong>5年新媒体运营经验</strong>，擅长抖音、小红书账号从0到1冷启动与内容矩阵搭建，曾服务美业连锁品牌、教育机构等行业，全程主导内容策划、拍摄剪辑、SEO优化及投流转化链路，具备完整的<strong>增长闭环运营能力</strong>。所有技能均为自学，学习迁移速度快，对新事物有极强探索欲。",
+    p2:"2025年以来深度自学<strong>AI工具链</strong>（Claude Code、ComfyUI、n8n、Playwright自动化等），已独立搭建小红书自动发布系统、AI简历筛查工具并部署上线，具备将<strong>AI工具融入内容运营&效率提升</strong>的实战能力，是少有的既懂运营又能动手搭AI工具的复合型选手。",
+    stats:[
+      {value:"1500+",label:"单年有效留咨（教育）"},
+      {value:"300+",label:"半年B端留咨（美业）"},
+      {value:"10%",label:"B端招商转化率"},
+      {value:"50%",label:"教学课程成交率"},
+      {value:"TOP 3",label:"小红书行业关键词排名"}
+    ]
+  },
+  experience:[
+    {id:"exp1",role:"招商运营 / 老板助理",company:"梵莎美业连锁品牌公司 · 美业",period:"2024.05 — 2025.06",
+      bullets:["<strong>创始人IP冷启动：</strong>主导抖音+小红书创始人IP账号从0搭建，SEO优化使「美甲加盟」「自助美甲店」等B端关键词排名<strong>前3</strong>，半年有效留咨<strong>300+</strong>，转化率<strong>10%</strong>，为全体系单账号留咨第一。","<strong>内容矩阵执行：</strong>负责招商账号编导、拍摄、剪辑，月均产出<strong>20–30条</strong>抖音视频并同步分发至小红书，单条最高获赞613。","<strong>私域与品牌维护：</strong>设计加盟商引流链路，优化招商PPT，辅助创始人私域直播；处理小红书负面帖<strong>10+条</strong>（删除/限流）。","<strong>招商辅助：</strong>承担老板助理日常事务，参与意向客户初筛及线下拜访。"],
+      tags:["小红书SEO:tag-red","抖音运营:tag-orange","B端招商:tag-gray","私域转化:tag-gray","IP冷启动:tag-purple"]},
+    {id:"exp2",role:"新媒体运营主管",company:"遵义市新世纪外国语学校 · 教育",period:"2022.12 — 2024.04",
+      bullets:["<strong>账号矩阵0到1：</strong>从零搭建抖音、视频号、小红书账号矩阵，全年累计有效留咨<strong>1500+</strong>，成功验证「教育内容+本地化运营」增长模型。","<strong>精准转化：</strong>基于家长教育焦虑用户画像设计内容及投流方案，正课转化率<strong>25–35%</strong>，留咨成本控制在同行均值<strong>80%</strong>。","<strong>全链路执行：</strong>负责日常运营、线上线下活动策划、内容剪辑，持续优化本地推ROI。"],
+      tags:["本地推投流:tag-blue","转化优化:tag-green","内容矩阵:tag-gray","用户画像:tag-gray"]},
+    {id:"exp3",role:"老板助理 / 拍摄剪辑",company:"重庆慧星希管理有限公司 · 代运营",period:"2020.09 — 2022.12",
+      bullets:["<strong>多品牌内容制作：</strong>为仇婆抄手、陶妈妈零食厂、重庆体彩等本地品牌制作抖音视频，覆盖品宣与产品推广场景。","<strong>教学账号独立运营：</strong>「知识干货+场景化展示」留咨钩子设计，周均留咨<strong>50+</strong>，成交率达<strong>50%</strong>。","<strong>数据驱动迭代：</strong>A/B测试剧情vs口播脚本，推动视频完播率提升<strong>25%</strong>。"],
+      tags:["Final Cut Pro:tag-gray","剪映:tag-gray","A/B测试:tag-green","完播率优化:tag-orange"]}
+  ],
+  projects:[
+    {id:"proj1",name:"小红书自动发布草稿系统",demo:"",desc:"基于 n8n + Node.js + Playwright 搭建的自动化内容发布流水线。用 Persistent Context 解决浏览器 Profile 缓存问题，实现从「接收内容」→「打开创作平台」→「上传图文 + 自动打Tag + 加入合集」→「保存草稿」全链路无人值守运行。",tags:["n8n:tag-blue","Playwright:tag-blue","Node.js:tag-gray","浏览器自动化:tag-gray","内容运营提效:tag-green"]},
+    {id:"proj2",name:"AI 简历筛查工具",demo:"local",desc:"使用 Flask + Claude API 构建的 B 端简历批量分析平台。独立完成 Mac → GitHub → 腾讯云服务器 SSH 全链路部署，建立 smoke test + 进程守护机制，掌握完整的「AI工具开发 → 测试 → 上线」工程流程。",tags:["Claude API:tag-red","Flask:tag-gray","腾讯云:tag-gray","GitHub:tag-gray","已上线:tag-green"]},
+    {id:"proj3",name:"ComfyUI 图像生成工作流研究",demo:"",desc:"深度研究 ComfyUI 节点工作流搭建，探索 AI 图像生成在内容运营中的实际应用场景（封面图、产品图、人物IP形象）。",tags:["ComfyUI:tag-purple","Stable Diffusion:tag-purple","AI图像:tag-gray","内容创作:tag-green"]}
+  ],
+  portfolio:[
+    {id:"port1", type:"account", title:"梵莎美业 · 小红书账号", meta:"SEO冷启动 · 留咨300+", link:"", emoji:"📱"},
+    {id:"port2", type:"account", title:"教育机构 · 抖音账号矩阵", meta:"全年留咨1500+", link:"", emoji:"🎓"},
+    {id:"port3", type:"video",   title:"代表作视频", meta:"最高获赞613", link:"", emoji:"🎬"},
+    {id:"port4", type:"workflow",title:"小红书自动发布工作流", meta:"n8n · Playwright", link:"", emoji:"⚡"},
+    {id:"port5", type:"screenshot",title:"AI简历筛查工具", meta:"Flask · Claude API · 已上线", link:"", emoji:"🤖"},
+  ],
+  skills:[
+    {group:"内容运营",items:["抖音运营","小红书运营","TikTok","Instagram","视频号","YouTube"]},
+    {group:"策略 & 增长",items:["SEO优化","投流优化","本地推","A/B测试","用户画像分析","私域转化"]},
+    {group:"制作工具",items:["Final Cut Pro","剪映","Canva"]},
+    {group:"AI 工具",items:["Claude / ChatGPT","ComfyUI","n8n","Playwright","Claude Code","Midjourney"]}
+  ]
+};
+
+function loadData(){
+  try{ const s=localStorage.getItem('resume_data'); return s?JSON.parse(s):DEFAULT; }
+  catch(e){ return DEFAULT; }
+}
+
+const ICO={
+  phone:`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.09 12 19.79 19.79 0 0 1 1 3.38 2 2 0 0 1 2.96 1.21h3.1a2 2 0 0 1 2 1.72c.13.96.36 1.9.7 2.81a2 2 0 0 1-.45 2.11L6.91 9.2A16 16 0 0 0 15 17.09l1.27-1.27a2 2 0 0 1 2.11-.45c.91.35 1.85.58 2.81.7a2 2 0 0 1 1.72 2.03z"/></svg>`,
+  mail:`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="m2 7 10 7 10-7"/></svg>`,
+  pin:`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7z"/><circle cx="12" cy="9" r="2.5"/></svg>`,
+  cal:`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg>`,
+  clock:`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="10"/><path d="M12 8v4l3 3"/></svg>`,
+  user:`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>`,
+  bag:`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 7V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v2"/></svg>`,
+  robot:`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="8" width="18" height="13" rx="2"/><path d="M12 8V5"/><circle cx="12" cy="4" r="1"/><path d="M7 13h.01M17 13h.01M7 17h10"/></svg>`,
+  tool:`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/></svg>`,
+  play:`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><polygon points="5 3 19 12 5 21 5 3"/></svg>`
+};
+
+function render(){
+  const D=loadData();
+  const P=D.personal;
+
+  const intentTagsHtml=(P.intents||[]).map(t=>`<span class="itag">${t}</span>`).join('');
+  const statHtml=(D.about.stats||[]).map(s=>`
+    <div class="stat-card">
+      <span class="stat-val" data-target="${s.value}">${s.value}</span>
+      <span class="stat-lbl">${s.label}</span>
+    </div>`).join('');
+
+  const expHtml=(D.experience||[]).map(e=>{
+    const bullets=(e.bullets||[]).map(b=>`<li>${b}</li>`).join('');
+    const tags=(e.tags||[]).map(t=>{const[l,c]=t.split(':');return`<span class="tag ${c||'tag-gray'}">${l}</span>`;}).join('');
+    return`<div class="tl-item">
+      <div class="tl-top">
+        <div><div class="tl-role">${e.role}</div><div class="tl-company">${e.company}</div></div>
+        <span class="tl-period">${e.period}</span>
+      </div>
+      <ul class="tl-bullets">${bullets}</ul>
+      <div class="tl-tags">${tags}</div>
+    </div>`;
+  }).join('');
+
+  const projHtml=(D.projects||[]).map(p=>{
+    const tags=(p.tags||[]).map(t=>{const[l,c]=t.split(':');return`<span class="tag ${c||'tag-gray'}">${l}</span>`;}).join('');
+    const demo=p.demo==='local'
+      ?`<span class="demo-badge">${ICO.play}面试可现场演示</span>`
+      :p.demo?`<a class="demo-badge" href="${p.demo}" target="_blank">${ICO.play}在线演示</a>`:'';
+    return`<div class="proj-card"><div class="proj-inner">
+      <div class="proj-top"><div class="proj-name">${p.name}</div>${demo}</div>
+      <p class="proj-desc">${p.desc}</p>
+      <div class="tl-tags">${tags}</div>
+    </div></div>`;
+  }).join('');
+
+  // ── Portfolio ──
+  const TYPE_META = {
+    account:    {label:'账号主页', cls:'type-account',    showPlay:false},
+    video:      {label:'视频作品', cls:'type-video',      showPlay:true},
+    workflow:   {label:'工作流',   cls:'type-workflow',   showPlay:true},
+    screenshot: {label:'项目截图', cls:'type-screenshot', showPlay:false},
+  };
+  const portfolioHtml = (D.portfolio||[]).length ? `
+    <div class="portfolio-grid">
+      ${(D.portfolio||[]).map(p=>{
+        const tm = TYPE_META[p.type]||TYPE_META.screenshot;
+        const inner = p.img
+          ? `<img class="port-thumb" src="${p.img}" alt="${p.title}"/>`
+          : `<div class="port-thumb-placeholder" style="background:linear-gradient(135deg,rgba(168,85,247,.12),rgba(249,115,22,.08))">${p.emoji||'📁'}</div>`;
+        const playBtn = tm.showPlay
+          ? `<div class="port-play-btn"><svg viewBox="0 0 24 24" fill="currentColor"><polygon points="5 3 19 12 5 21 5 3"/></svg></div>`
+          : '';
+        const tag = p.link ? `href="${p.link}" target="_blank" rel="noopener"` : '';
+        return `<a class="port-card" ${tag}>
+          ${inner}
+          <div class="port-overlay">
+            <div class="port-title">${p.title}</div>
+            <div class="port-meta">${p.meta}</div>
+          </div>
+          <div class="port-type-badge ${tm.cls}">${tm.label}</div>
+          ${playBtn}
+        </a>`;
+      }).join('')}
+    </div>` : `<div style="text-align:center;padding:32px;color:var(--muted);font-size:13px;border:1px dashed rgba(255,255,255,0.1);border-radius:16px">在后台添加作品链接</div>`;
+
+  // ── Knowledge Graph data ──
+  const GRAPH_CATS = {
+    center:  { color:'#FFFFFF', glow:'rgba(255,255,255,0.55)', bg:'rgba(255,255,255,0.10)', label:'个人品牌' },
+    ai:      { color:'#60A5FA', glow:'rgba(96,165,250,0.45)',  bg:'rgba(59,130,246,0.10)',  label:'AI 应用'  },
+    content: { color:'#FB923C', glow:'rgba(251,146,60,0.45)',  bg:'rgba(249,115,22,0.10)',  label:'内容运营' },
+    product: { color:'#C084FC', glow:'rgba(192,132,252,0.45)', bg:'rgba(168,85,247,0.10)',  label:'增长运营' },
+    basic:   { color:'#4ADE80', glow:'rgba(74,222,128,0.45)',  bg:'rgba(34,197,94,0.10)',   label:'基础技能' },
+  };
+
+  const GRAPH_DATA = {
+    nodes: [
+      // Layer 0 – center
+      { id:'center',    label:'杜斌衡',    layer:0, cat:'center',  r:30, desc:'新媒体运营 · AI应用 | 5年经验' },
+      // Layer 1 – main domains
+      { id:'content',   label:'内容运营',  layer:1, cat:'content', r:20, desc:'5年全平台内容运营经验，覆盖小红书、抖音、视频号' },
+      { id:'ai',        label:'AI 应用',   layer:1, cat:'ai',      r:20, desc:'2025年深度自学AI工具链，从0构建多个AI工具' },
+      { id:'growth',    label:'增长运营',  layer:1, cat:'product', r:18, desc:'SEO优化、付费投流、私域转化全链路' },
+      { id:'basic',     label:'基础技能',  layer:1, cat:'basic',   r:16, desc:'代码部署、数据采集、工程化能力' },
+      // Layer 2 – content
+      { id:'xhs',       label:'小红书',    layer:2, cat:'content', r:15, desc:'SEO冷启动，留咨300+，美业/教育行业' },
+      { id:'douyin',    label:'抖音',      layer:2, cat:'content', r:15, desc:'矩阵账号运营，全年留咨1500+' },
+      { id:'video',     label:'视频制作',  layer:2, cat:'content', r:13, desc:'最高单条获赞613，剪映/Final Cut' },
+      { id:'copy',      label:'文案策划',  layer:2, cat:'content', r:13, desc:'爆款内容框架，标题/封面/钩子设计' },
+      { id:'tiktok',    label:'TikTok',    layer:2, cat:'content', r:11, desc:'海外短视频平台运营' },
+      // Layer 2 – ai
+      { id:'claude',    label:'Claude API',layer:2, cat:'ai',      r:14, desc:'构建AI简历筛查工具，B端产品' },
+      { id:'n8n',       label:'n8n 自动化',layer:2, cat:'ai',      r:14, desc:'小红书自动发布草稿系统，全链路无人值守' },
+      { id:'comfyui',   label:'ComfyUI',   layer:2, cat:'ai',      r:13, desc:'AI图像生成工作流，封面/产品图研究' },
+      { id:'flask',     label:'Flask',     layer:2, cat:'ai',      r:12, desc:'Python Web框架，独立完成全链路部署' },
+      // Layer 2 – growth
+      { id:'seo',       label:'SEO优化',   layer:2, cat:'product', r:14, desc:'关键词布局，搜索自然流量，平台算法研究' },
+      { id:'ads',       label:'投流优化',  layer:2, cat:'product', r:13, desc:'付费流量ROI优化，A/B测试' },
+      { id:'private',   label:'私域转化',  layer:2, cat:'product', r:12, desc:'用户留存、社群运营、转化漏斗' },
+      // Layer 2 – basic
+      { id:'deploy',    label:'服务器部署',layer:2, cat:'basic',   r:12, desc:'Mac → GitHub → 腾讯云 SSH 全链路' },
+      { id:'data',      label:'数据分析',  layer:2, cat:'basic',   r:11, desc:'竞品分析，内容数据监控，用户画像' },
+      // Layer 3 – tools/deep
+      { id:'playwright',label:'Playwright',layer:3, cat:'ai',      r:9,  desc:'浏览器自动化，解决Profile缓存问题' },
+      { id:'prompt',    label:'Prompt工程',layer:3, cat:'ai',      r:9,  desc:'系统级Prompt设计，结构化输出' },
+      { id:'sd',        label:'Stable Diffusion',layer:3, cat:'ai',r:8,  desc:'本地AI图像模型，ComfyUI节点工作流' },
+      { id:'python',    label:'Python',    layer:3, cat:'basic',   r:9,  desc:'脚本编写，工具开发，Flask后端' },
+      { id:'github',    label:'GitHub',    layer:3, cat:'basic',   r:8,  desc:'代码版本管理，CI/CD，Actions' },
+      { id:'xhs-seo',   label:'小红书SEO', layer:3, cat:'content', r:8,  desc:'标题/标签/封面/评论区优化策略' },
+      { id:'beauty',    label:'美业经验',  layer:3, cat:'content', r:8,  desc:'医美/美甲行业垂类内容运营' },
+      { id:'edu',       label:'教育行业',  layer:3, cat:'content', r:8,  desc:'培训机构矩阵账号，全年留咨管理' },
+      { id:'abtest',    label:'A/B测试',   layer:3, cat:'product', r:8,  desc:'封面/标题/钩子科学对比测试' },
+      { id:'ssh',       label:'SSH运维',   layer:3, cat:'basic',   r:8,  desc:'进程守护，smoke test，Nginx配置' },
+    ],
+    links: [
+      // center → L1
+      {source:'center',  target:'content'  },
+      {source:'center',  target:'ai'       },
+      {source:'center',  target:'growth'   },
+      {source:'center',  target:'basic'    },
+      // content → L2
+      {source:'content', target:'xhs'      },
+      {source:'content', target:'douyin'   },
+      {source:'content', target:'video'    },
+      {source:'content', target:'copy'     },
+      {source:'content', target:'tiktok'   },
+      // ai → L2
+      {source:'ai',      target:'claude'   },
+      {source:'ai',      target:'n8n'      },
+      {source:'ai',      target:'comfyui'  },
+      {source:'ai',      target:'flask'    },
+      // growth → L2
+      {source:'growth',  target:'seo'      },
+      {source:'growth',  target:'ads'      },
+      {source:'growth',  target:'private'  },
+      // basic → L2
+      {source:'basic',   target:'deploy'   },
+      {source:'basic',   target:'data'     },
+      // L2 → L3
+      {source:'n8n',     target:'playwright'},
+      {source:'claude',  target:'prompt'   },
+      {source:'comfyui', target:'sd'       },
+      {source:'flask',   target:'python'   },
+      {source:'deploy',  target:'ssh'      },
+      {source:'python',  target:'github'   },
+      {source:'xhs',     target:'xhs-seo'  },
+      {source:'xhs',     target:'beauty'   },
+      {source:'douyin',  target:'edu'      },
+      {source:'ads',     target:'abtest'   },
+      // cross-links (增加图谱密度)
+      {source:'seo',     target:'xhs-seo'  },
+      {source:'data',    target:'abtest'   },
+      {source:'flask',   target:'deploy'   },
+    ]
+  };
+
+  const legendHtml = Object.entries(GRAPH_CATS).filter(([k])=>k!=='center').map(([k,c])=>`
+    <div class="legend-item">
+      <div class="legend-dot" style="background:${c.color}"></div>
+      ${c.label}
+    </div>`).join('');
+
+  const skillsHtml = `
+    <div class="graph-legend">${legendHtml}</div>
+    <div class="graph-outer">
+      <div id="graph-wrap"></div>
+      <div class="node-detail" id="node-detail">
+        <div class="nd-cat" id="nd-cat"></div>
+        <div class="nd-name" id="nd-name"></div>
+        <div class="nd-desc" id="nd-desc"></div>
+      </div>
+    </div>
+    <div class="graph-hint">· 拖动节点 · 滚轮缩放 · 点击查看详情 ·</div>
+  `;
+
+  // PLACEHOLDER: graph init (moved below DOM insert)
+  const _GRAPH_CATS = GRAPH_CATS;
+  const _GRAPH_DATA  = GRAPH_DATA;
+
+
+  document.getElementById('resume-root').innerHTML=`
+  <div class="hero glass">
+    <div class="hero-inner">
+      <div class="hero-left">
+        <div class="hero-badge">${P.badge}</div>
+        <h1 class="hero-name">${P.name}</h1>
+        <p class="hero-typed" id="typed"></p>
+        <div class="hero-divider"></div>
+        <div class="hero-meta-row">
+          <span class="hero-meta-item">${ICO.pin}${P.location}</span>
+          <span class="hero-meta-item">${ICO.cal}${P.birthday}</span>
+          <span class="hero-meta-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 7V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v2"/></svg>${P.experience}</span>
+          <span class="hero-meta-item">${ICO.clock}${P.availability}</span>
+        </div>
+        <div class="intent-tags">${intentTagsHtml}</div>
+        <div class="hero-contacts">
+          <a class="contact-item" href="tel:${P.phone}">${ICO.phone}${P.phone}</a>
+          <a class="contact-item" href="mailto:${P.email}">${ICO.mail}${P.email}</a>
+        </div>
+      </div>
+      <div class="hero-avatar">
+        ${P.avatar ? `<img src="${P.avatar}" alt="${P.name}"/>` : '🧑🏻'}
+      </div>
+    </div>
+  </div>
+
+  <div class="section glass" id="sec-about">
+    <div class="sec-header">
+      <div class="sec-icon">${ICO.user}</div>
+      <span class="sec-title">自我介绍</span>
+      <div class="sec-line"></div>
+    </div>
+    <p class="about-text">${D.about.p1}</p>
+    <p class="about-text" style="margin-top:14px">${D.about.p2}</p>
+    <div class="stats-row">${statHtml}</div>
+  </div>
+
+  <div class="section glass" id="sec-exp">
+    <div class="sec-header">
+      <div class="sec-icon">${ICO.bag}</div>
+      <span class="sec-title">工作经历</span>
+      <div class="sec-line"></div>
+    </div>
+    <div class="timeline">${expHtml}</div>
+  </div>
+
+  <div class="section glass" id="sec-ai">
+    <div class="sec-header">
+      <div class="sec-icon">${ICO.robot}</div>
+      <span class="sec-title">AI 自学项目（2025）</span>
+      <div class="sec-line"></div>
+    </div>
+    <div class="proj-grid">${projHtml}</div>
+  </div>
+
+  <div class="section glass" id="sec-portfolio">
+    <div class="sec-header">
+      <div class="sec-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 21h8M12 17v4"/></svg></div>
+      <span class="sec-title">作品展示</span>
+      <div class="sec-line"></div>
+    </div>
+    ${portfolioHtml}
+  </div>
+
+  <div class="section glass" id="sec-skills">
+    <div class="sec-header">
+      <div class="sec-icon">${ICO.tool}</div>
+      <span class="sec-title">知识图谱</span>
+      <div class="sec-line"></div>
+    </div>
+    <div>${skillsHtml}</div>
+  </div>
+
+  <footer>${P.name} · 简历 · ${new Date().getFullYear()}.${String(new Date().getMonth()+1).padStart(2,'0')}</footer>
+  `;
+
+  // ── 打字效果 ──
+  const roles=P.intents||['新媒体运营'];
+  let ri=0,ci=0,del=false;
+  const el=document.getElementById('typed');
+  function type(){
+    const cur=roles[ri];
+    if(!del){el.innerHTML=cur.slice(0,ci+1)+'<span class="cursor"></span>';ci++;
+      if(ci===cur.length){del=true;setTimeout(type,2200);return}}
+    else{el.innerHTML=cur.slice(0,ci-1)+'<span class="cursor"></span>';ci--;
+      if(ci===0){del=false;ri=(ri+1)%roles.length}}
+    setTimeout(type,del?38:75);
+  }
+  type();
+
+  // ── 数字计数动画 ──
+  function animateCount(el, target){
+    const num = parseInt(target.replace(/[^0-9]/g,''));
+    if(isNaN(num)){return;}
+    const prefix = target.match(/^[^0-9]*/)?.[0]||'';
+    const suffix = target.match(/[^0-9]*$/)?.[0]||'';
+    let start=0;
+    const dur=1200, step=16;
+    const inc=num/(dur/step);
+    const t=setInterval(()=>{
+      start=Math.min(start+inc,num);
+      el.textContent=prefix+Math.floor(start)+suffix;
+      if(start>=num){el.textContent=target;clearInterval(t);}
+    },step);
+  }
+
+  // ── Scroll animations ──
+  const secObs=new IntersectionObserver(entries=>{
+    entries.forEach(e=>{if(e.isIntersecting){e.target.classList.add('visible');}});
+  },{threshold:.07});
+  document.querySelectorAll('.section').forEach(s=>secObs.observe(s));
+  // portfolio cards stagger
+  const portObs=new IntersectionObserver(entries=>{
+    entries.forEach(e=>{
+      if(!e.isIntersecting)return;
+      e.target.querySelectorAll('.port-card').forEach((c,i)=>{
+        c.style.opacity='0';c.style.transform='translateY(16px)';
+        setTimeout(()=>{c.style.transition='opacity .4s ease,transform .4s ease';c.style.opacity='1';c.style.transform='translateY(0)';},i*80);
+      });
+      portObs.unobserve(e.target);
+    });
+  },{threshold:.05});
+  const portSec=document.getElementById('sec-portfolio');
+  if(portSec)portObs.observe(portSec);
+
+  const tlObs=new IntersectionObserver(entries=>{
+    entries.forEach(e=>{
+      if(!e.isIntersecting)return;
+      e.target.querySelectorAll('.tl-item').forEach((item,i)=>{
+        setTimeout(()=>item.classList.add('visible'),i*150);
+      });
+      tlObs.unobserve(e.target);
+    });
+  },{threshold:.04});
+  document.querySelectorAll('.timeline').forEach(t=>tlObs.observe(t));
+
+  const statObs=new IntersectionObserver(entries=>{
+    entries.forEach(e=>{
+      if(!e.isIntersecting)return;
+      e.target.querySelectorAll('.stat-val').forEach(el=>{
+        animateCount(el, el.dataset.target);
+      });
+      statObs.unobserve(e.target);
+    });
+  },{threshold:.3});
+  const statsRow=document.querySelector('.stats-row');
+  if(statsRow)statObs.observe(statsRow);
+
+  // ── Knowledge Graph init ──
+  function initGraph(){
+    const wrap = document.getElementById('graph-wrap');
+    if(!wrap || typeof ForceGraph === 'undefined') return;
+
+    const W = wrap.clientWidth || 800;
+    const H = 560;
+    let hoveredNode = null;
+
+    // deep clone so ForceGraph can mutate positions
+    const gData = {
+      nodes: _GRAPH_DATA.nodes.map(n=>({...n})),
+      links: _GRAPH_DATA.links.map(l=>({...l})),
+    };
+
+    const graph = ForceGraph()(wrap)
+      .width(W).height(H)
+      .backgroundColor('#090909')
+      .graphData(gData)
+      .linkColor(()=>'rgba(255,255,255,0.18)')
+      .linkWidth(1)
+      .linkDirectionalParticles(2)
+      .linkDirectionalParticleWidth(1.5)
+      .linkDirectionalParticleSpeed(0.004)
+      .nodeRelSize(1)
+      .nodeVal(n => (n.r||10) * (n.r||10))
+      .nodeColor(n => (_GRAPH_CATS[n.cat]||_GRAPH_CATS.basic).color)
+      .nodeLabel(n => `${n.label}: ${n.desc||''}`)
+      .nodeCanvasObject((node, ctx, gs)=>{
+        if(!isFinite(node.x)||!isFinite(node.y)) return;
+        const cat = _GRAPH_CATS[node.cat] || _GRAPH_CATS.basic;
+        const isHov = hoveredNode === node;
+        const r = (node.r || 10) * (isHov ? 1.2 : 1);
+
+        // glow
+        try {
+          const grd = ctx.createRadialGradient(node.x,node.y,r*0.2, node.x,node.y,r*2.4);
+          grd.addColorStop(0, cat.glow);
+          grd.addColorStop(1, 'rgba(0,0,0,0)');
+          ctx.beginPath(); ctx.arc(node.x,node.y,r*2.4,0,Math.PI*2);
+          ctx.fillStyle = grd; ctx.fill();
+        } catch(e){}
+
+        // fill
+        ctx.beginPath(); ctx.arc(node.x,node.y,r,0,Math.PI*2);
+        ctx.fillStyle = cat.bg; ctx.fill();
+
+        // ring
+        ctx.beginPath(); ctx.arc(node.x,node.y,r,0,Math.PI*2);
+        ctx.strokeStyle = isHov ? '#ffffff' : cat.color;
+        ctx.lineWidth = node.layer===0 ? 2.5 : 1.5;
+        ctx.stroke();
+
+        // text — auto-fit inside circle, tech font, shadow
+        const maxW = r * 1.72;           // ~86% of diameter
+        const wt   = node.layer<=1 ? '600' : '400';
+        const fam  = '"Space Grotesk",Inter,"PingFang SC",sans-serif';
+        let fs     = Math.min(r * 0.56, node.layer===0 ? 13 : node.layer===1 ? 11 : 9);
+        ctx.font = `${wt} ${fs}px ${fam}`;
+        // shrink until fits
+        while(fs > 6.5 && ctx.measureText(node.label).width > maxW){
+          fs -= 0.5;
+          ctx.font = `${wt} ${fs}px ${fam}`;
+        }
+        ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+        // clip to circle so text never bleeds out
+        ctx.save();
+        ctx.beginPath(); ctx.arc(node.x, node.y, r * 0.93, 0, Math.PI*2); ctx.clip();
+        // subtle shadow for depth
+        ctx.shadowColor   = 'rgba(0,0,0,0.75)';
+        ctx.shadowBlur    = 5;
+        ctx.shadowOffsetX = 0;
+        ctx.shadowOffsetY = 1;
+        ctx.fillStyle = (node.layer===0||isHov) ? '#ffffff' : cat.color;
+        ctx.fillText(node.label, node.x, node.y);
+        ctx.restore();
+        // reset shadow
+        ctx.shadowColor = 'transparent'; ctx.shadowBlur = 0;
+      })
+      .nodeCanvasObjectMode(()=>'replace')
+      .d3AlphaDecay(0.015)
+      .d3VelocityDecay(0.35)
+      .cooldownTicks(Infinity)
+      .onNodeHover(node=>{
+        hoveredNode = node;
+        wrap.style.cursor = node ? 'pointer' : 'grab';
+      })
+      .onNodeClick((node, evt)=>{
+        const panel = document.getElementById('node-detail');
+        if(!panel) return;
+        const cat = _GRAPH_CATS[node.cat] || _GRAPH_CATS.basic;
+        document.getElementById('nd-cat').textContent  = cat.label.toUpperCase();
+        document.getElementById('nd-cat').style.color  = cat.color;
+        document.getElementById('nd-name').textContent = node.label;
+        document.getElementById('nd-desc').textContent = node.desc||'';
+        const rect = wrap.parentElement.getBoundingClientRect();
+        panel.style.left = Math.min(evt.clientX-rect.left+16, W-260)+'px';
+        panel.style.top  = Math.min(evt.clientY-rect.top+16,  H-130)+'px';
+        panel.classList.add('show');
+        setTimeout(()=>panel.classList.remove('show'), 4000);
+      });
+
+    // Adjust forces
+    try {
+      graph.d3Force('charge').strength(n=>-(n.r||10)*12);
+      graph.d3Force('link')
+        .distance(l=>{
+          const sid = l.source?.id||l.source;
+          const s = gData.nodes.find(n=>n.id===sid);
+          return s ? [90,70,50,36][Math.min(s.layer,3)] : 55;
+        })
+        .strength(0.4);
+      graph.d3ReheatSimulation();
+    } catch(e){}
+
+    // Zoom to fit repeatedly as simulation settles
+    setTimeout(()=>{ try{ graph.zoomToFit(400, 40); }catch(e){} }, 800);
+    setTimeout(()=>{ try{ graph.zoomToFit(400, 40); }catch(e){} }, 2000);
+
+    // Resize observer
+    new ResizeObserver(()=>{
+      const w = wrap.clientWidth;
+      if(w && Math.abs(w-graph.width())>20) graph.width(w);
+    }).observe(wrap);
+  }
+
+  // Init graph when section enters viewport
+  const graphObs = new IntersectionObserver(entries=>{
+    if(entries[0].isIntersecting){
+      graphObs.disconnect();
+      setTimeout(initGraph, 80);
+    }
+  }, {threshold: 0.05});
+  const skillsSec = document.getElementById('sec-skills');
+  if(skillsSec) graphObs.observe(skillsSec);
+  else setTimeout(initGraph, 200); // fallback
+
+  // hero自动visible
+  setTimeout(()=>{
+    document.querySelectorAll('.section').forEach(s=>{
+      const r=s.getBoundingClientRect();
+      if(r.top<window.innerHeight)s.classList.add('visible');
+    });
+  },100);
+}
+
+render();
+window.addEventListener('storage',e=>{if(e.key==='resume_data')render();});
+</script>
+</body>
+</html>
