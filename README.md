@@ -1,204 +1,170 @@
-<p>
-  <a href="https://www.aihero.dev/s/skills-newsletter">
-    <picture>
-      <source media="(prefers-color-scheme: dark)" srcset="https://res.cloudinary.com/total-typescript/image/upload/v1777382277/skills-repo-dark_2x.png">
-      <source media="(prefers-color-scheme: light)" srcset="https://res.cloudinary.com/total-typescript/image/upload/v1777382277/skill-repo-light_2x.png">
-      <img alt="Skills" src="https://res.cloudinary.com/total-typescript/image/upload/v1777382277/skill-repo-light_2x.png" width="369">
-    </picture>
-  </a>
-</p>
+# WebDesign Agent · 完整设计指南
 
-# Skills For Real Engineers
-
-[![skills.sh](https://skills.sh/b/mattpocock/skills)](https://skills.sh/mattpocock/skills)
-
-My agent skills that I use every day to do real engineering - not vibe coding.
-
-Developing real applications is hard. Approaches like GSD, BMAD, and Spec-Kit try to help by owning the process. But while doing so, they take away your control and make bugs in the process hard to resolve.
-
-These skills are designed to be small, easy to adapt, and composable. They work with any model. They're based on decades of engineering experience. Hack around with them. Make them your own. Enjoy.
-
-If you want to keep up with changes to these skills, and any new ones I create, you can join ~60,000 other devs on my newsletter:
-
-[Sign Up To The Newsletter](https://www.aihero.dev/s/skills-newsletter)
-
-## Quickstart (30-second setup)
-
-1. Run the skills.sh installer:
-
-```bash
-npx skills@latest add mattpocock/skills
-```
-
-2. Pick the skills you want, and which coding agents you want to install them on. **Make sure you select `/setup-matt-pocock-skills`**.
-
-3. Run `/setup-matt-pocock-skills` in your agent. It will:
-   - Ask you which issue tracker you want to use (GitHub, Linear, or local files)
-   - Ask you what labels you apply to ticks when you triage them (`/triage` uses labels)
-   - Ask you where you want to save any docs we create
-
-4. Bam - you're ready to go.
-
-## Why These Skills Exist
-
-I built these skills as a way to fix common failure modes I see with Claude Code, Codex, and other coding agents.
-
-### #1: The Agent Didn't Do What I Want
-
-> "No-one knows exactly what they want"
->
-> David Thomas & Andrew Hunt, [The Pragmatic Programmer](https://www.amazon.co.uk/Pragmatic-Programmer-Anniversary-Journey-Mastery/dp/B0833F1T3V)
-
-**The Problem**. The most common failure mode in software development is misalignment. You think the dev knows what you want. Then you see what they've built - and you realize it didn't understand you at all.
-
-This is just the same in the AI age. There is a communication gap between you and the agent. The fix for this is a **grilling session** - getting the agent to ask you detailed questions about what you're building.
-
-**The Fix** is to use:
-
-- [`/grill-me`](./skills/productivity/grill-me/SKILL.md) - for non-code uses
-- [`/grill-with-docs`](./skills/engineering/grill-with-docs/SKILL.md) - same as [`/grill-me`](./skills/productivity/grill-me/SKILL.md), but adds more goodies (see below)
-
-These are my most popular skills. They help you align with the agent before you get started, and think deeply about the change you're making. Use them _every_ time you want to make a change.
-
-### #2: The Agent Is Way Too Verbose
-
-> With a ubiquitous language, conversations among developers and expressions of the code are all derived from the same domain model.
->
-> Eric Evans, [Domain-Driven-Design](https://www.amazon.co.uk/Domain-Driven-Design-Tackling-Complexity-Software/dp/0321125215)
-
-**The Problem**: At the start of a project, devs and the people they're building the software for (the domain experts) are usually speaking different languages.
-
-I felt the same tension with my agents. Agents are usually dropped into a project and asked to figure out the jargon as they go. So they use 20 words where 1 will do.
-
-**The Fix** for this is a shared language. It's a document that helps agents decode the jargon used in the project.
-
-<details>
-<summary>
-Example
-</summary>
-
-Here's an example [`CONTEXT.md`](https://github.com/mattpocock/course-video-manager/blob/076a5a7a182db0fe1e62971dd7a68bcadf010f1c/CONTEXT.md), from my `course-video-manager` repo. Which one is easier to read?
-
-- **BEFORE**: "There's a problem when a lesson inside a section of a course is made 'real' (i.e. given a spot in the file system)"
-- **AFTER**: "There's a problem with the materialization cascade"
-
-This concision pays off session after session.
-
-</details>
-
-This is built into [`/grill-with-docs`](./skills/engineering/grill-with-docs/SKILL.md). It's a grilling session, but that helps you build a shared language with the AI, and document hard-to-explain decisions in ADR's.
-
-It's hard to explain how powerful this is. It might be the single coolest technique in this repo. Try it, and see.
-
-> [!TIP]
-> A shared language has many other benefits than reducing verbosity:
->
-> - **Variables, functions and files are named consistently**, using the shared language
-> - As a result, the **codebase is easier to navigate** for the agent
-> - The agent also **spends fewer tokens on thinking**, because it has access to a more concise language
-
-### #3: The Code Doesn't Work
-
-> "Always take small, deliberate steps. The rate of feedback is your speed limit. Never take on a task that’s too big."
->
-> David Thomas & Andrew Hunt, [The Pragmatic Programmer](https://www.amazon.co.uk/Pragmatic-Programmer-Anniversary-Journey-Mastery/dp/B0833F1T3V)
-
-**The Problem**: Let's say that you and the agent are aligned on what to build. What happens when the agent _still_ produces crap?
-
-It's time to look at your feedback loops. Without feedback on how the code it produces actually runs, the agent will be flying blind.
-
-**The Fix**: You need the usual tranche of feedback loops: static types, browser access, and automated tests.
-
-For automated tests, a red-green-refactor loop is critical. This is where the agent writes a failing test first, then fixes the test. This helps give the agent a consistent level of feedback that results in far better code.
-
-I've built a **[`/tdd`](./skills/engineering/tdd/SKILL.md) skill** you can slot into any project. It encourages red-green-refactor and gives the agent plenty of guidance on what makes good and bad tests.
-
-For debugging, I've also built a **[`/diagnose`](./skills/engineering/diagnose/SKILL.md)** skill that wraps best debugging practices into a simple loop.
-
-### #4: We Built A Ball Of Mud
-
-> "Invest in the design of the system _every day_."
->
-> Kent Beck, [Extreme Programming Explained](https://www.amazon.co.uk/Extreme-Programming-Explained-Embrace-Change/dp/0321278658)
-
-> "The best modules are deep. They allow a lot of functionality to be accessed through a simple interface."
->
-> John Ousterhout, [A Philosophy Of Software Design](https://www.amazon.co.uk/Philosophy-Software-Design-2nd/dp/173210221X)
-
-**The Problem**: Most apps built with agents are complex and hard to change. Because agents can radically speed up coding, they also accelerate software entropy. Codebases get more complex at an unprecedented rate.
-
-**The Fix** for this is a radical new approach to AI-powered development: caring about the design of the code.
-
-This is built in to every layer of these skills:
-
-- [`/to-prd`](./skills/engineering/to-prd/SKILL.md) quizzes you about which modules you're touching before creating a PRD
-- [`/zoom-out`](./skills/engineering/zoom-out/SKILL.md) tells the agent to explain code in the context of the whole system
-
-And crucially, [`/improve-codebase-architecture`](./skills/engineering/improve-codebase-architecture/SKILL.md) helps you rescue a codebase that has become a ball of mud. I recommend running it on your codebase once every few days.
-
-### Summary
-
-Software engineering fundamentals matter more than ever. These skills are my best effort at condensing these fundamentals into repeatable practices, to help you ship the best apps of your career. Enjoy.
-
-## Reference
-
-### Engineering
-
-Skills I use daily for code work.
-
-- **[diagnose](./skills/engineering/diagnose/SKILL.md)** — Disciplined diagnosis loop for hard bugs and performance regressions: reproduce → minimise → hypothesise → instrument → fix → regression-test.
-- **[grill-with-docs](./skills/engineering/grill-with-docs/SKILL.md)** — Grilling session that challenges your plan against the existing domain model, sharpens terminology, and updates `CONTEXT.md` and ADRs inline.
-- **[triage](./skills/engineering/triage/SKILL.md)** — Triage issues through a state machine of triage roles.
-- **[improve-codebase-architecture](./skills/engineering/improve-codebase-architecture/SKILL.md)** — Find deepening opportunities in a codebase, informed by the domain language in `CONTEXT.md` and the decisions in `docs/adr/`.
-- **[setup-matt-pocock-skills](./skills/engineering/setup-matt-pocock-skills/SKILL.md)** — Scaffold the per-repo config (issue tracker, triage label vocabulary, domain doc layout) that the other engineering skills consume. Run once per repo before using `to-issues`, `to-prd`, `triage`, `diagnose`, `tdd`, `improve-codebase-architecture`, or `zoom-out`.
-- **[tdd](./skills/engineering/tdd/SKILL.md)** — Test-driven development with a red-green-refactor loop. Builds features or fixes bugs one vertical slice at a time.
-- **[to-issues](./skills/engineering/to-issues/SKILL.md)** — Break any plan, spec, or PRD into independently-grabbable GitHub issues using vertical slices.
-- **[to-prd](./skills/engineering/to-prd/SKILL.md)** — Turn the current conversation context into a PRD and submit it as a GitHub issue. No interview — just synthesizes what you've already discussed.
-- **[zoom-out](./skills/engineering/zoom-out/SKILL.md)** — Tell the agent to zoom out and give broader context or a higher-level perspective on an unfamiliar section of code.
-- **[prototype](./skills/engineering/prototype/SKILL.md)** — Build a throwaway prototype to flesh out a design — either a runnable terminal app for state/business-logic questions, or several radically different UI variations toggleable from one route.
-
-### Productivity
-
-General workflow tools, not code-specific.
-
-- **[caveman](./skills/productivity/caveman/SKILL.md)** — Ultra-compressed communication mode. Cuts token usage ~75% by dropping filler while keeping full technical accuracy.
-- **[grill-me](./skills/productivity/grill-me/SKILL.md)** — Get relentlessly interviewed about a plan or design until every branch of the decision tree is resolved.
-- **[handoff](./skills/productivity/handoff/SKILL.md)** — Compact the current conversation into a handoff document so another agent can continue the work.
-- **[write-a-skill](./skills/productivity/write-a-skill/SKILL.md)** — Create new skills with proper structure, progressive disclosure, and bundled resources.
-
-### Misc
-
-Tools I keep around but rarely use.
-
-- **[git-guardrails-claude-code](./skills/misc/git-guardrails-claude-code/SKILL.md)** — Set up Claude Code hooks to block dangerous git commands (push, reset --hard, clean, etc.) before they execute.
-- **[migrate-to-shoehorn](./skills/misc/migrate-to-shoehorn/SKILL.md)** — Migrate test files from `as` type assertions to @total-typescript/shoehorn.
-- **[scaffold-exercises](./skills/misc/scaffold-exercises/SKILL.md)** — Create exercise directory structures with sections, problems, solutions, and explainers.
-- **[setup-pre-commit](./skills/misc/setup-pre-commit/SKILL.md)** — Set up Husky pre-commit hooks with lint-staged, Prettier, type checking, and tests.
-- **[edu-news-children](./skills/misc/edu-news-children/SKILL.md)** — Aggregate 0–16岁儿童教育新闻与政策资讯（中国+全球），含RSS/API数据源、内容分类与少年故事专项采集逻辑。
-- **[web-design](./skills/misc/web-design/SKILL.md)** — 研究 Landbook / MotionSites / SeeSaw / Bolt.new / Shaders.com 高赞模版，提炼布局、配色、动效规律，生成高质量落地页或 Web App UI。
+本文面向设计师、产品经理和开发者。无论是否有编程基础，都能让 AI 生成**真正有设计感、不像 AI 的**专业网页。专用名词会在括号内解释。
 
 ---
 
-## 杜斌衡 · 动态网页简历项目
+## 一、为什么要有这个 Agent（代理）？
 
-个人动态简历系统，纯静态 HTML 单文件架构，无框架无构建工具。
+Agent（AI 代理）是可以自主执行任务的 AI 助手，WebDesign Agent 专门负责网页设计。
 
-### 文件
+直接让 AI 做网页，结果通常千篇一律——**霓虹色 + 发光卡片 + JetBrains Mono 字体**——一眼就是 AI 做的，毫无品牌个性。
 
-| 文件 | 说明 | 地址 |
-|------|------|------|
-| `resume-dubinheng.html` | 公开简历页 | http://81.70.25.112/resume/ |
-| `resume-admin.html` | 管理后台（登录保护） | http://81.70.25.112/resume/admin.html |
-| `resume-logs/` | 更新日志目录 | — |
+这个 Agent 的解法：先去顶级设计网站爬取高赞案例，提炼规律，**再**动手设计。输出结果更接近获奖作品水准。
 
-### 功能亮点
+---
 
-- **Obsidian 知识图谱** — force-graph 力导向图，29节点 · 33连线 · 三层结构，节点可拖动/缩放/点击
-- **暗色渐变 UI** — 深色玻璃拟态风格，CSS 渐变背景光晕，打字机动画，数字滚动计数
-- **后台管理** — 三栏布局（导航+编辑+简历结构图），所有字段标注显示位置，登录保护
-- **数据驱动** — localStorage 存储，后台保存 → 简历页 storage 事件实时同步渲染
-- **腾讯云部署** — Nginx 静态托管，与 AI 简历筛查工具共用同一服务器
+## 二、AI 做的网页有什么问题？前后对比
 
-### 更新日志
+同样是深色科技风落地页——左边是 AI 默认生成，右边是按真正设计原则生成的 Forma 样板：
 
-详见 [`resume-logs/`](./resume-logs/) 目录。
+![前后对比](docs/images/before-after.png)
+
+### ❌ BEFORE：AI 设计的典型特征
+
+- **JetBrains Mono（等宽代码字体）** 用于所有文字，标题/按钮/正文全是代码感
+- **赛博青色 #00FFFF**（荧光蓝绿）贯穿导航/图标/按钮/边框，整页颜色感单调
+- **三层径向渐变（Radial Gradient）** + SVG 网格纹理叠加，背景视觉厚重
+- **卡片四周 box-shadow 发光**，border 用青色半透明，强调感过重
+- **三等分对称布局**，渐变方向固定 135°，毫无个性
+- **ALL CAPS + 大字间距**（全大写 + 字母间距拉宽）用满所有层级
+- **CTA 文案：START FREE TRIAL / LEARN MORE**——AI 万能通用句式
+
+### ✅ AFTER：真正获奖设计的做法
+
+- **单一字体族**，靠字重区分层级（900 超粗标题 + 300 极细描述），不引入第二字体
+- **Accent 色（强调色）全站最多 3 次**：只在 CTA 按钮 + 1 个关键数据上出现
+- **纯色背景 #0C0C0E**（有温度的深黑），无渐变无纹理，装饰来自内容本身
+- **卡片无 border 无发光**，靠背景色差分隔（#0C0C0E vs #121214，差值极小但肉眼可辨）
+- **2:1:1 不对称布局**，只打破一次网格，其余规整
+- **全站只有 1 个动效**：Hero 标题入场 translateY(108%)→0，其余元素完全静止
+- **CTA 文案用产品专属动词**：「了解工作方式」「申请早期体验」
+
+---
+
+## 三、Agent 学习哪些网站？
+
+Agent 根据设计目标自动选 2-3 个网站抓取高赞案例，不凭空臆造风格：
+
+### 🌐 Landbook（land-book.com）
+精选落地页（Landing Page，营销型单页网站）画廊，日更。适合：极简商业风、SaaS 首页。
+
+### 🌐 MotionSites.ai（motionsites.ai）
+专注动效（Motion，页面动画与过渡）设计网站库。适合：滚动触发动画、视差效果。
+
+### 🌐 SeeSaw（seesaw.website）
+收录 Awwwards（全球顶级网页设计奖项）获奖和提名作品。适合：高创意、非常规布局。
+
+### 🌐 Bolt.new（bolt.new）
+AI 网页构建平台，覆盖功能型 Web App（网页应用）模板。适合：仪表板、工具类后台。
+
+### 🌐 Shaders.com / Shadertoy
+WebGL Shader（基于 GPU 的实时图形着色器）效果库。适合：流体背景、粒子特效。
+
+---
+
+## 四、使用方法
+
+### ▌ Claude Code（推荐，最完整）
+
+Claude Code 是 Anthropic 官方命令行工具。安装插件后输入斜杠命令（Slash Command，/ 开头的快捷指令）即可触发 Agent：
+
+```bash
+# 第一步：安装插件（只需做一次）
+npx skills@latest add Dubinheng/skills
+
+# 第二步：在项目目录触发 Agent
+/web-design
+
+# 示例：
+帮我做一个 SaaS 落地页，深色背景，极简科技风，有标题入场动画
+```
+
+### ▌ Cursor（AI 代码编辑器）
+
+Cursor 是基于 VS Code 的 AI 增强编辑器（代码编辑器）。把 Agent 规则粘贴到 Rules 配置里即可：
+
+1. 打开 Cursor → Settings（设置）→ Rules for AI
+2. 打开文件 `skills/misc/web-design/AGENTS.md`，复制全部内容
+3. 粘贴进 Rules 框，保存后在 Composer（AI 对话框）里直接描述需求
+
+### ▌ Codex / Windsurf / Gemini CLI 等
+
+这些工具原生读取 AGENTS.md（项目级 AI 规则文件），操作步骤：
+
+1. 复制 `skills/misc/web-design/AGENTS.md` 到你的项目根目录
+2. Windsurf 用户：改名为 `.windsurfrules`
+3. GitHub Copilot 用户：放到 `.github/copilot-instructions.md`
+4. 在该工具中正常提问，规则自动加载生效
+
+---
+
+## 五、设计原则详解
+
+### ① 配色：一个 Accent（强调色），全站最多 3 次
+背景选 **#0C0C0E**（微蓝调深黑，有温度，不是纯黑 #000000）。Accent 色只在 CTA 按钮 + 1 个关键数据出现，其余靠明度差分层。
+
+### ② 字体：一个字族，两个极端字重
+只用一种字体（如 Noto Sans SC 或 Inter）。字重用 **900 超粗（大标题）** + **300 极细（描述文字）**，两极对比形成戏剧感，中间不用其他字重。
+
+### ③ 动效：只有一个关键动画
+Hero（首屏）标题词语用 translateY(108%)→0 入场，这是 **全站唯一的动画**。其余元素完全静止。曲线用 cubic-bezier(0.16, 1, 0.3, 1)（先快后慢弹性减速）。
+
+### ④ 布局：只打破一次网格
+Features 区用 **2:1:1 不对称三列**（第 1 张卡片跨 2 行），其余区域严格规整。Hero 左对齐，右侧放超低透明度大字（opacity 0.017）做空间感。
+
+### ⑤ 内容优先，视觉服务于概念
+最根本差异：AI 从视觉风格开始设计；真正的设计从 **一个具体的、不可替代的核心概念** 开始。先有「每一个像素，都有它的理由」，整站视觉才是对它的翻译。
+
+---
+
+## 六、案例：Forma 落地页完整解析
+
+Forma 是完全按照上述原则生成的样板页面（虚构的设计决策管理工具）。源码见 [`forma-demo.html`](forma-demo.html)，逐区分析每个设计决策：
+
+### 📸 Hero 区（首屏）
+- **「它的理由。」用 300 字重 + 灰色**，和前面 900 字重形成「声音渐弱」对比——AI 绝不会这样混搭字重
+- **背景幽灵字「形」opacity 仅 0.017**（几乎不可见，AI 会把它做成 opacity:0.1 的发光大字）
+- **Accent 色 #D4F53C（电光黄绿）只在「申请使用」按钮出现**——全站第 1 次
+- **副标题左侧 1px 细线（border-left）**，比段落缩进更有质感，但完全不起眼
+
+### 📸 Features 区（功能介绍）
+- **grid 2fr 1fr 1fr 不对称**，第 1 张卡片跨 2 行——打破 AI 的三等分对称习惯
+- **卡片间 2px gap 做缝隙，无 border 无圆角（仅 4px 微圆角）**，背景色差分隔（#0C0C0E vs #121214）
+
+### 📸 Metrics 区（数据指标）
+- **73% 用 Accent 色（全站第 2 次）**，其余 3 个数字保持白色，靠内容本身的冲击力
+
+### 📸 End CTA（结尾行动区）
+- 「开始记住。」三个字，大量留白，无任何背景装饰
+- **按钮是全站第 3 个也是最后一个 Accent 色元素**，之后不再出现
+
+---
+
+## 七、快速开始
+
+1. 安装 Claude Code：访问 https://claude.ai/code 下载
+2. 安装技能插件：终端输入 `npx skills@latest add Dubinheng/skills`
+3. 在项目目录打开 Claude Code
+4. 输入 `/web-design`，描述你想要的网页风格和内容
+5. Agent 先输出「风格摘要」（配色/字体/动效计划），你确认或修改后开始生成
+6. 生成 HTML 文件后自动启动预览，截图确认效果，满意后保存
+
+### 📂 相关文件索引
+
+| 文件 | 说明 |
+|------|------|
+| [`SKILL.md`](skills/misc/web-design/SKILL.md) | 斜杠命令触发入口 |
+| [`AGENT.md`](skills/misc/web-design/AGENT.md) | Agent 完整定义（Claude Code 专用，含身份/工具/工作流） |
+| [`AGENTS.md`](skills/misc/web-design/AGENTS.md) | 跨工具通用版（Codex / Cursor / Windsurf 均可用） |
+| [`PATTERNS.md`](skills/misc/web-design/PATTERNS.md) | 配色系统/布局/动效代码片段库 |
+| [`SOURCES.md`](skills/misc/web-design/SOURCES.md) | 5 个灵感网站的抓取策略 |
+| [`forma-demo.html`](forma-demo.html) | 本文案例样板源码，可直接下载修改 |
+
+---
+
+## 八、Agent 工作流程图
+
+每次设计任务都经历以下 6 个阶段（缺一不可）：
+
+![工作流程图](docs/images/workflow.png)

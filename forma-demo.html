@@ -1,0 +1,402 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Forma — 设计决策，永久留存</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;700;900&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg:      #0C0C0E;
+  --surface: #121214;
+  --border:  rgba(255,255,255,.055);
+  --text:    #E8E4DC;
+  --muted:   #504D49;
+  --accent:  #D4F53C;
+  --px: clamp(24px, 5vw, 72px);
+  --max: 1200px;
+}
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html {
+  font-family: 'Noto Sans SC', 'PingFang SC', 'Hiragino Sans GB',
+               'Microsoft YaHei', system-ui, sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  -webkit-font-smoothing: antialiased;
+  scroll-behavior: smooth;
+}
+
+/* ─── NAV ─────────────────────────────────────── */
+nav {
+  position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+  padding: 22px var(--px);
+  display: flex; align-items: center; justify-content: space-between;
+  border-bottom: 1px solid transparent;
+  transition: background .3s, border-color .3s;
+}
+nav.s {
+  background: rgba(12,12,14,.9);
+  backdrop-filter: blur(14px) saturate(1.3);
+  border-color: var(--border);
+}
+.logo { font-weight: 900; font-size: 17px; letter-spacing: -.02em; }
+.nav-links { display: flex; gap: 28px; list-style: none; }
+.nav-links a {
+  font-size: 13px; font-weight: 400;
+  color: var(--muted); text-decoration: none;
+  transition: color .2s;
+}
+.nav-links a:hover { color: var(--text); }
+
+/* ─── BUTTONS ─────────────────────────────────── */
+.btn {
+  display: inline-flex; align-items: center;
+  padding: 11px 22px; border-radius: 6px;
+  font-size: 13.5px; font-weight: 700; text-decoration: none;
+  border: none; cursor: pointer;
+  transition: transform .15s, box-shadow .15s, border-color .15s;
+}
+.btn:hover { transform: translateY(-1px); }
+.btn-p { background: var(--accent); color: var(--bg); }
+.btn-p:hover { box-shadow: 0 8px 28px rgba(212,245,60,.2); }
+.btn-g {
+  background: transparent; color: var(--text);
+  border: 1px solid var(--border);
+}
+.btn-g:hover { border-color: rgba(255,255,255,.22); }
+
+/* ─── HERO ─────────────────────────────────────── */
+.hero {
+  min-height: 100vh;
+  padding: 172px var(--px) 100px;
+  position: relative; overflow: hidden;
+  display: flex; flex-direction: column;
+}
+.hero-ghost {
+  position: absolute; right: -2%;
+  top: 50%; transform: translateY(-50%);
+  font-size: clamp(240px, 30vw, 480px);
+  font-weight: 900; letter-spacing: -.04em;
+  color: rgba(255,255,255,.017);
+  user-select: none; pointer-events: none; line-height: 1;
+}
+.hero > *:not(.hero-ghost) { position: relative; z-index: 1; }
+
+.overline {
+  font-size: 11px; font-weight: 400;
+  letter-spacing: .12em; color: var(--muted);
+  display: flex; align-items: center; gap: 14px;
+  margin-bottom: 48px;
+}
+.overline::before {
+  content: ''; width: 28px; height: 1px;
+  background: var(--muted); display: block;
+}
+
+/* ── 唯一的动效：标题入场 ─────────────────────── */
+h1 {
+  font-size: clamp(52px, 9vw, 120px);
+  font-weight: 900;
+  line-height: 1.02;
+  letter-spacing: -.01em;   /* 中文不需要大幅负间距 */
+  max-width: 8em;
+}
+.w  { overflow: hidden; display: inline-block; vertical-align: top; }
+.wi {
+  display: inline-block;
+  transform: translateY(108%);
+  animation: up .72s cubic-bezier(.16,1,.3,1) forwards;
+}
+.w.d1 .wi { animation-delay: .08s; }
+.w.d2 .wi { animation-delay: .16s; }
+.w.d3 .wi { animation-delay: .24s; }
+@keyframes up { to { transform: translateY(0); } }
+
+/* 最后一段浅色轻字重，替代英文的 italic */
+h1 .light { font-weight: 300; color: var(--muted); }
+
+.hero-sub {
+  font-size: 17px; font-weight: 300; line-height: 1.85;
+  color: var(--muted); max-width: 26em;
+  margin-top: 52px;
+  padding-left: 18px; border-left: 1px solid var(--border);
+}
+.hero-sub b { color: var(--text); font-weight: 400; }
+
+.ctas { display: flex; gap: 12px; margin-top: 48px; flex-wrap: wrap; }
+
+.proof {
+  margin-top: auto; padding-top: 72px;
+  font-size: 12px; color: var(--muted);
+  display: flex; align-items: center; gap: 14px;
+}
+.proof-avatars { display: flex; }
+.av {
+  width: 26px; height: 26px; border-radius: 50%;
+  border: 2px solid var(--bg); background: var(--surface);
+  color: var(--muted); font-size: 9px; font-weight: 700;
+  display: flex; align-items: center; justify-content: center;
+  margin-left: -7px;
+}
+.av:first-child { margin-left: 0; }
+
+/* ─── STATEMENT ────────────────────────────────── */
+.statement {
+  padding: 110px var(--px);
+  border-top: 1px solid var(--border);
+  border-bottom: 1px solid var(--border);
+}
+.st-inner {
+  max-width: var(--max); margin: 0 auto;
+  display: grid; grid-template-columns: 160px 1fr;
+  gap: 80px; align-items: start;
+}
+.st-label {
+  font-size: 11px; font-weight: 400;
+  letter-spacing: .1em; color: var(--muted);
+  padding-top: 8px;
+}
+.st-text {
+  font-size: clamp(22px, 2.8vw, 38px); font-weight: 300;
+  line-height: 1.55; letter-spacing: -.005em; color: var(--muted);
+}
+.st-text b { color: var(--text); font-weight: 700; }
+
+/* ─── FEATURES ─────────────────────────────────── */
+.feat-wrap { padding: 0; }
+.feat-label {
+  font-size: 11px; font-weight: 400;
+  letter-spacing: .1em; color: var(--muted);
+  padding: 72px var(--px) 48px;
+}
+.feat-grid {
+  display: grid;
+  grid-template-columns: 2fr 1fr 1fr;
+  grid-template-rows: 1fr 1fr;
+  gap: 2px;
+  background: rgba(255,255,255,.038);
+}
+.fc { background: var(--surface); padding: 44px 48px; }
+.fc.big { grid-row: 1 / 3; padding: 56px 60px; }
+.fc-n {
+  font-size: 10.5px; color: var(--muted);
+  font-weight: 400; letter-spacing: .1em;
+  margin-bottom: 52px;
+}
+.fc-t {
+  font-size: 18px; font-weight: 700;
+  letter-spacing: -.01em; line-height: 1.35;
+  margin-bottom: 14px;
+}
+.fc.big .fc-t { font-size: clamp(20px, 2.2vw, 30px); }
+.fc-d {
+  font-size: 14px; font-weight: 300;
+  line-height: 1.85; color: var(--muted);
+}
+.fc-deco {
+  margin-top: 52px; height: 130px;
+  background: var(--bg); border-radius: 4px;
+  padding: 20px 24px;
+  display: flex; flex-direction: column; justify-content: space-between;
+}
+.deco-bar { height: 2px; background: rgba(255,255,255,.07); border-radius: 1px; }
+.deco-bar.a { background: var(--accent); opacity: .45; width: 44%; }
+.deco-bar.m { width: 65%; }
+
+/* ─── METRICS ──────────────────────────────────── */
+.metrics { padding: 0 var(--px) 120px; }
+.metrics-inner {
+  max-width: var(--max); margin: 0 auto;
+  border-top: 1px solid var(--border); padding-top: 72px;
+  display: grid; grid-template-columns: repeat(4,1fr); gap: 24px;
+}
+.mv {
+  font-size: clamp(40px, 5vw, 64px); font-weight: 900;
+  letter-spacing: -.03em; line-height: 1;
+}
+.mv.hi { color: var(--accent); }
+.ml { font-size: 13px; color: var(--muted); line-height: 1.6; margin-top: 10px; }
+
+/* ─── END CTA ──────────────────────────────────── */
+.end {
+  padding: 130px var(--px);
+  border-top: 1px solid var(--border);
+  text-align: center;
+}
+.end h2 {
+  font-size: clamp(40px, 6.5vw, 84px);
+  font-weight: 900; letter-spacing: -.01em; line-height: 1.1;
+  margin-bottom: 28px;
+}
+.end p { font-size: 16px; font-weight: 300; color: var(--muted); margin-bottom: 48px; }
+
+/* ─── FOOTER ───────────────────────────────────── */
+footer {
+  padding: 28px var(--px);
+  border-top: 1px solid var(--border);
+  display: flex; align-items: center; justify-content: space-between;
+}
+footer small { font-size: 12px; color: var(--muted); }
+
+/* ─── RESPONSIVE ───────────────────────────────── */
+@media (max-width: 700px) {
+  .nav-links { display: none; }
+  .hero { padding: 140px 24px 80px; }
+  .hero-ghost { display: none; }
+  .hero-sub { padding-left: 0; border-left: none; }
+  .statement { padding: 80px 24px; }
+  .st-inner { grid-template-columns: 1fr; gap: 20px; }
+  .feat-label { padding: 64px 24px 40px; }
+  .feat-grid { grid-template-columns: 1fr; }
+  .fc.big { grid-row: auto; }
+  .metrics { padding: 0 24px 80px; }
+  .metrics-inner { grid-template-columns: repeat(2,1fr); }
+  .end { padding: 80px 24px; }
+  footer { flex-direction: column; gap: 8px; text-align: center; padding: 24px; }
+}
+</style>
+</head>
+<body>
+
+<nav id="nav">
+  <div class="logo">Forma</div>
+  <ul class="nav-links">
+    <li><a href="#">产品</a></li>
+    <li><a href="#">定价</a></li>
+    <li><a href="#">更新日志</a></li>
+    <li><a href="#">文档</a></li>
+  </ul>
+  <a href="#" class="btn btn-p">申请使用</a>
+</nav>
+
+<section class="hero">
+  <div class="hero-ghost">形</div>
+
+  <p class="overline">Forma &nbsp;·&nbsp; 设计运营</p>
+
+  <h1>
+    <span class="w"   ><span class="wi">每一个</span></span>
+    <span class="w d1"><span class="wi">像素，</span></span><br>
+    <span class="w d2"><span class="wi">都有</span></span>
+    <span class="w d3"><span class="wi"><span class="light">它的理由。</span></span></span>
+  </h1>
+
+  <p class="hero-sub">
+    Forma 将你的<b>设计决策与产品结果连接起来</b>。<br>
+    不再有「当时为什么要这样」的困惑，<br>
+    不再有遗失的设计依据。<br>
+    只有决策，记录在它发生的地方。
+  </p>
+
+  <div class="ctas">
+    <a href="#" class="btn btn-p">了解工作方式</a>
+    <a href="#" class="btn btn-g">阅读文档</a>
+  </div>
+
+  <div class="proof">
+    <div class="proof-avatars">
+      <div class="av">V</div>
+      <div class="av">L</div>
+      <div class="av">A</div>
+      <div class="av">S</div>
+    </div>
+    已被 400+ 个设计团队信任
+  </div>
+</section>
+
+<section class="statement">
+  <div class="st-inner">
+    <p class="st-label">问题所在</p>
+    <p class="st-text">
+      设计团队每天做出<b>数千个决策</b>。<br>
+      大多数在会议结束的那一刻便已消失。<br>
+      Forma 是你的团队<b>从未拥有过的记忆</b>。
+    </p>
+  </div>
+</section>
+
+<section class="feat-wrap">
+  <p class="feat-label">如何运作</p>
+  <div class="feat-grid">
+
+    <div class="fc big">
+      <p class="fc-n">01</p>
+      <h3 class="fc-t">决策就在设计旁边</h3>
+      <p class="fc-d">将设计理由直接附加到组件、画框和图层。当有人问「为什么这个按钮是这样的」——答案已经在那里了。</p>
+      <div class="fc-deco">
+        <div class="deco-bar a"></div>
+        <div class="deco-bar"></div>
+        <div class="deco-bar m"></div>
+        <div class="deco-bar"></div>
+        <div class="deco-bar" style="width:30%"></div>
+      </div>
+    </div>
+
+    <div class="fc">
+      <p class="fc-n">02</p>
+      <h3 class="fc-t">真正有意义的版本历史</h3>
+      <p class="fc-d">不只是改了什么，而是为什么改、谁来决策、最初尝试了什么。</p>
+    </div>
+
+    <div class="fc">
+      <p class="fc-n">03</p>
+      <h3 class="fc-t">搜索所有曾做过的决策</h3>
+      <p class="fc-d">全文检索团队所有记录的设计理由。答案存在于某处。</p>
+    </div>
+
+    <div class="fc">
+      <p class="fc-n">04</p>
+      <h3 class="fc-t">在 Figma、Linear、Storybook 中使用</h3>
+      <p class="fc-d">在你的团队已经工作的地方。不需要再多开一个标签页。</p>
+    </div>
+
+    <div class="fc">
+      <p class="fc-n">05</p>
+      <h3 class="fc-t">交付是摘要，不是 Wiki</h3>
+      <p class="fc-d">工程师无需询问即可获得上下文，从你的决策中自动生成。</p>
+    </div>
+
+  </div>
+</section>
+
+<div class="metrics">
+  <div class="metrics-inner">
+    <div>
+      <div class="mv hi">73%</div>
+      <p class="ml">减少「当时为什么…」类会议时间</p>
+    </div>
+    <div>
+      <div class="mv">4 分钟</div>
+      <p class="ml">记录一个决策的平均时间</p>
+    </div>
+    <div>
+      <div class="mv">11×</div>
+      <p class="ml">新设计师上手速度提升</p>
+    </div>
+    <div>
+      <div class="mv">0</div>
+      <p class="ml">工程师需要学习的新工具数量</p>
+    </div>
+  </div>
+</div>
+
+<section class="end">
+  <h2>开始记住。</h2>
+  <p>加入已在使用 Forma 的 400 个设计团队。</p>
+  <a href="#" class="btn btn-p" style="font-size:15px;padding:14px 34px;">申请早期体验</a>
+</section>
+
+<footer>
+  <div class="logo">Forma</div>
+  <small>© 2026 Forma · 隐私政策 · 服务条款</small>
+</footer>
+
+<script>
+const nav = document.getElementById('nav');
+window.addEventListener('scroll', () => {
+  nav.classList.toggle('s', scrollY > 48);
+}, { passive: true });
+</script>
+</body>
+</html>

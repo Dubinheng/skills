@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>前后对比</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;700;900&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{background:#F0EDE8;font-family:'Noto Sans SC',sans-serif;padding:40px}
+h1{font-size:28px;font-weight:900;text-align:center;letter-spacing:-.02em;margin-bottom:8px}
+.subtitle{text-align:center;font-size:14px;color:#888;margin-bottom:40px}
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:24px;max-width:1100px;margin:0 auto}
+.panel{border-radius:16px;overflow:hidden;box-shadow:0 4px 32px rgba(0,0,0,.12)}
+.label{padding:14px 24px;font-size:13px;font-weight:700;letter-spacing:.06em}
+.label.bad{background:#FF4444;color:#fff}
+.label.good{background:#1A1A1A;color:#D4F53C}
+/* BEFORE */
+.before-body{
+  background:#000;padding:32px 24px;min-height:480px;
+  font-family:'JetBrains Mono',monospace;
+  position:relative;overflow:hidden;
+}
+.before-body::before{
+  content:'';position:absolute;inset:0;
+  background:radial-gradient(ellipse at 20% 50%,rgba(0,255,255,.2) 0%,transparent 60%),
+             radial-gradient(ellipse at 80% 20%,rgba(120,0,255,.2) 0%,transparent 55%);
+}
+.before-body::after{
+  content:'';position:absolute;inset:0;
+  background-image:linear-gradient(rgba(0,255,255,.04)1px,transparent 1px),linear-gradient(90deg,rgba(0,255,255,.04)1px,transparent 1px);
+  background-size:30px 30px;
+}
+.b-nav{position:relative;z-index:1;display:flex;justify-content:space-between;align-items:center;margin-bottom:48px;padding-bottom:12px;border-bottom:1px solid rgba(0,255,255,.2)}
+.b-logo{color:#00ffff;font-size:14px;font-weight:700;letter-spacing:.2em;text-transform:uppercase;text-shadow:0 0 12px #00ffff}
+.b-btn{background:linear-gradient(135deg,#00ffff,#7800ff);color:#000;font-size:10px;font-weight:700;padding:6px 14px;letter-spacing:.12em;text-transform:uppercase;border-radius:3px;box-shadow:0 0 16px rgba(0,255,255,.5)}
+.b-tag{position:relative;z-index:1;font-size:9px;letter-spacing:.25em;color:#00ffff;border:1px solid rgba(0,255,255,.3);padding:4px 12px;display:inline-block;margin-bottom:16px;text-shadow:0 0 8px #00ffff}
+.b-h1{position:relative;z-index:1;font-size:36px;font-weight:700;letter-spacing:.04em;text-transform:uppercase;
+  background:linear-gradient(135deg,#00ffff,#7800ff,#ff0080);-webkit-background-clip:text;-webkit-text-fill-color:transparent;
+  filter:drop-shadow(0 0 16px rgba(0,255,255,.4));line-height:1.1;margin-bottom:12px}
+.b-sub{position:relative;z-index:1;font-size:11px;color:rgba(0,255,255,.6);letter-spacing:.06em;line-height:1.8;margin-bottom:24px;text-transform:uppercase}
+.b-btns{position:relative;z-index:1;display:flex;gap:12px}
+.b-btn-p{background:linear-gradient(135deg,#00ffff,#7800ff);color:#000;font-size:10px;font-weight:700;padding:10px 20px;letter-spacing:.12em;text-transform:uppercase;border-radius:3px;box-shadow:0 0 20px rgba(0,255,255,.5)}
+.b-btn-s{color:#00ffff;font-size:10px;font-weight:700;padding:10px 20px;letter-spacing:.12em;text-transform:uppercase;border:1px solid #00ffff;box-shadow:0 0 12px rgba(0,255,255,.3)}
+.b-cards{position:relative;z-index:1;display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-top:32px}
+.b-card{background:rgba(0,255,255,.04);border:1px solid rgba(0,255,255,.15);border-radius:8px;padding:16px;text-align:center;box-shadow:0 0 16px rgba(0,255,255,.08)}
+.b-icon{font-size:20px;margin-bottom:8px;filter:drop-shadow(0 0 8px #00ffff)}
+.b-ct{font-size:9px;color:#00ffff;letter-spacing:.15em;text-transform:uppercase;text-shadow:0 0 6px #00ffff;margin-bottom:6px}
+.b-cd{font-size:9px;color:rgba(0,255,255,.4);line-height:1.5}
+
+/* AFTER */
+.after-body{background:#0C0C0E;padding:32px 24px;min-height:480px;position:relative;overflow:hidden}
+.a-ghost{position:absolute;right:-4%;top:48%;transform:translateY(-50%);font-size:180px;font-weight:900;color:rgba(255,255,255,.017);user-select:none;line-height:1;font-family:'Noto Sans SC',sans-serif}
+.a-nav{position:relative;z-index:1;display:flex;justify-content:space-between;align-items:center;margin-bottom:48px}
+.a-logo{color:#E8E4DC;font-size:14px;font-weight:900;letter-spacing:-.04em}
+.a-btn{background:#D4F53C;color:#0C0C0E;font-size:10px;font-weight:700;padding:7px 16px;border-radius:5px}
+.a-overline{position:relative;z-index:1;font-size:9px;color:#504D49;letter-spacing:.14em;display:flex;align-items:center;gap:10px;margin-bottom:20px}
+.a-overline::before{content:'';width:20px;height:1px;background:#504D49}
+.a-h1{position:relative;z-index:1;font-size:42px;font-weight:900;line-height:.95;letter-spacing:-.01em;color:#E8E4DC;margin-bottom:20px}
+.a-h1 span{font-weight:300;color:#504D49}
+.a-sub{position:relative;z-index:1;font-size:12px;font-weight:300;color:#504D49;line-height:1.8;max-width:34ch;padding-left:14px;border-left:1px solid rgba(255,255,255,.055);margin-bottom:20px}
+.a-sub b{color:#E8E4DC;font-weight:400}
+.a-btns{position:relative;z-index:1;display:flex;gap:10px}
+.a-btn-p{background:#D4F53C;color:#0C0C0E;font-size:10px;font-weight:700;padding:9px 18px;border-radius:5px}
+.a-btn-s{color:#E8E4DC;font-size:10px;font-weight:400;padding:9px 18px;border:1px solid rgba(255,255,255,.055);border-radius:5px}
+.a-cards{position:relative;z-index:1;display:grid;grid-template-columns:2fr 1fr 1fr;gap:2px;margin-top:28px;background:rgba(255,255,255,.038)}
+.a-card{background:#121214;padding:16px}
+.a-card.big{grid-row:1/3;padding:20px}
+.a-cn{font-size:9px;color:#504D49;letter-spacing:.1em;margin-bottom:14px}
+.a-ct{font-size:12px;font-weight:700;color:#E8E4DC;letter-spacing:-.02em;line-height:1.2;margin-bottom:6px}
+.a-cd{font-size:10px;font-weight:300;color:#504D49;line-height:1.6}
+
+/* DIFF LABELS */
+.diffs{max-width:1100px;margin:32px auto 0;display:grid;grid-template-columns:1fr 1fr;gap:24px}
+.diff-col h3{font-size:13px;font-weight:700;margin-bottom:12px;padding-bottom:8px;border-bottom:2px solid}
+.diff-col.bad h3{border-color:#FF4444;color:#FF4444}
+.diff-col.good h3{border-color:#1A1A1A;color:#1A1A1A}
+.diff-item{display:flex;align-items:flex-start;gap:8px;margin-bottom:8px;font-size:12px;line-height:1.5;color:#444}
+.diff-item::before{content:'';flex-shrink:0;width:6px;height:6px;border-radius:50%;margin-top:5px}
+.diff-col.bad .diff-item::before{background:#FF4444}
+.diff-col.good .diff-item::before{background:#1A1A1A}
+</style>
+</head>
+<body>
+<h1>前后对比：AI 默认风格 vs 真正的设计</h1>
+<p class="subtitle">同样是深色科技风落地页——差距在哪里</p>
+
+<div class="grid">
+  <!-- BEFORE -->
+  <div class="panel">
+    <div class="label bad">❌  BEFORE — 典型 AI 生成风格</div>
+    <div class="before-body">
+      <div class="b-nav">
+        <div class="b-logo">NEXGEN</div>
+        <div class="b-btn">GET STARTED</div>
+      </div>
+      <div class="b-tag">// NEXT-GEN AI PLATFORM</div>
+      <div class="b-h1">UNLEASH<br>THE FUTURE</div>
+      <div class="b-sub">NEXT-GENERATION ARTIFICIAL INTELLIGENCE<br>PLATFORM FOR ENTERPRISE SOLUTIONS</div>
+      <div class="b-btns">
+        <div class="b-btn-p">START FREE TRIAL</div>
+        <div class="b-btn-s">LEARN MORE</div>
+      </div>
+      <div class="b-cards">
+        <div class="b-card"><div class="b-icon">⚡</div><div class="b-ct">LIGHTNING FAST</div><div class="b-cd">Ultra-high performance neural processing</div></div>
+        <div class="b-card"><div class="b-icon">🔮</div><div class="b-ct">AI POWERED</div><div class="b-cd">Next-gen machine learning models</div></div>
+        <div class="b-card"><div class="b-icon">🛡️</div><div class="b-ct">ENTERPRISE</div><div class="b-cd">Military-grade encryption system</div></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- AFTER -->
+  <div class="panel">
+    <div class="label good">✅  AFTER — 真正的设计</div>
+    <div class="after-body">
+      <div class="a-ghost">形</div>
+      <div class="a-nav">
+        <div class="a-logo">Forma</div>
+        <div class="a-btn">申请使用</div>
+      </div>
+      <div class="a-overline">Forma · 设计运营</div>
+      <div class="a-h1">每一个 像素，<br>都有 <span>它的理由。</span></div>
+      <div class="a-sub">Forma 将你的<b>设计决策与产品结果</b>连接起来。不再有「当时为什么这样」的困惑。</div>
+      <div class="a-btns">
+        <div class="a-btn-p">了解工作方式</div>
+        <div class="a-btn-s">阅读文档</div>
+      </div>
+      <div class="a-cards">
+        <div class="a-card big"><div class="a-cn">01</div><div class="a-ct">决策就在设计旁边</div><div class="a-cd">将设计理由直接附加到组件和图层，有人问「为什么」，答案已在那里。</div></div>
+        <div class="a-card"><div class="a-cn">02</div><div class="a-ct">真正有意义的版本历史</div><div class="a-cd">不只是改了什么，而是为什么改。</div></div>
+        <div class="a-card"><div class="a-cn">03</div><div class="a-ct">搜索所有决策</div><div class="a-cd">全文检索，答案存在于某处。</div></div>
+        <div class="a-card"><div class="a-cn">04</div><div class="a-ct">Figma / Linear</div><div class="a-cd">在已有工具里工作。</div></div>
+        <div class="a-card"><div class="a-cn">05</div><div class="a-ct">交付即摘要</div><div class="a-cd">工程师自动获得上下文。</div></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- 差异说明 -->
+<div class="diffs">
+  <div class="diff-col bad">
+    <h3>❌ BEFORE 的问题</h3>
+    <div class="diff-item">JetBrains Mono 等宽字体用于所有文字</div>
+    <div class="diff-item">青色（#00FFFF）贯穿导航/按钮/文字/边框</div>
+    <div class="diff-item">背景三层径向渐变 + 网格纹理</div>
+    <div class="diff-item">卡片四周发光（box-shadow glow）</div>
+    <div class="diff-item">ALL CAPS + 大字间距用满所有层级</div>
+    <div class="diff-item">三等分对称布局，千篇一律</div>
+    <div class="diff-item">CTA 文案：START FREE TRIAL / LEARN MORE</div>
+    <div class="diff-item">渐变方向固定 135°（左上→右下）</div>
+  </div>
+  <div class="diff-col good">
+    <h3>✅ AFTER 的做法</h3>
+    <div class="diff-item">Noto Sans SC，单一字体，靠字重区分层级</div>
+    <div class="diff-item">Accent 色 #D4F53C 全站只在 CTA 出现（1次）</div>
+    <div class="diff-item">纯色背景 #0C0C0E，无渐变无纹理</div>
+    <div class="diff-item">卡片靠色差分隔（#121214 vs #0C0C0E），无 border</div>
+    <div class="diff-item">UPPERCASE 只用在 overline 一个层级</div>
+    <div class="diff-item">2:1:1 不对称布局，首张卡片跨两行</div>
+    <div class="diff-item">CTA 文案：了解工作方式（具体动词）</div>
+    <div class="diff-item">「它的理由。」用 300 字重灰色，声音渐弱</div>
+  </div>
+</div>
+</body>
+</html>
